@@ -1,21 +1,22 @@
-
 import { Outlet, useParams } from 'react-router-dom';
 import './Chat.css';
 import PageChatLeft from './PageChatLeft';
 import { useMediaQuery } from 'react-responsive';
-import queryString from 'query-string';
+import { useContext, useEffect } from 'react';
+import { AppContext, AppContextType } from 'src/AppProvider';
 
-interface QueryParams {
-    token?: string
-}
 
 export default function Chat() {
+    const { echo } = useContext(AppContext) as AppContextType
     const isDesktopOrLaptop = useMediaQuery({
         query: '(min-width: 767px)'
     })
     const params = useParams()
-    const query = queryString.parse(window.location.search) as QueryParams;
-    console.log(query.token);
+    useEffect(() => {
+        if (echo) {
+            echo.private('chat').subscribed(() => console.log('Ok...'))
+        }
+    }, [echo])
 
     return (
         <div>
