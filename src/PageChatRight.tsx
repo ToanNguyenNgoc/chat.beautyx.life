@@ -1,8 +1,6 @@
-import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 export default function PageChatRight() {
-    const params = useParams()
     return (
         <div className='page-right'>
             <div className='page-right-head'>
@@ -11,11 +9,11 @@ export default function PageChatRight() {
                         <Link 
                             to={{pathname:`/chats`}}
                         >
-                            <img src="https://beautyx-spa.web.app/static/media/chevron-left.ac52a0ac09a2c0f64c752c5b4d237b5c.svg"/>
+                            <img src="https://beautyx-spa.web.app/static/media/chevron-left.ac52a0ac09a2c0f64c752c5b4d237b5c.svg" alt=""/>
                         </Link>
                     </div>
                     <div className='head-avatar'>
-                        <img src="http://myspa.local/files//avatar/20230217023406.jpg"/>
+                        <img src="http://myspa.local/files//avatar/20230217023406.jpg" alt=""/>
                     </div>
                     <div>
                         <div className='head-username'>
@@ -43,7 +41,7 @@ export default function PageChatRight() {
                 <div className='content'>
                     <div className="input-group">
                         <input type="text" className="form-control" placeholder="Aa"/>
-                        <button type="button" class="btn btn-link"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>  
+                        <button type="button" className="btn btn-link"><i className="fa fa-paper-plane" aria-hidden="true"></i></button>  
                     </div>
                 </div>
                 <div className='icon-like'>

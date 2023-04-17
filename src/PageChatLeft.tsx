@@ -11,7 +11,7 @@ export default function PageChatLeft() {
                 <div className='head-title'>
                     <h3>Chats</h3>
                     <div className='head-title-icon'>
-                        <button type="button" className="btn btn-light"><i class="fa fa-bell-o" aria-hidden="true"></i></button>
+                        <button type="button" className="btn btn-light"><i className="fa fa-bell-o" aria-hidden="true"></i></button>
                         <button type="button" className="btn btn-light" disabled><i className="fa fa-video-camera" aria-hidden="true"></i></button>
                         <button type="button" className="btn btn-light"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
                     </div>

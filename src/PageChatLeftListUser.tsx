@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
-export const PageChatLeftListUser = (props) => {
+export const PageChatLeftListUser = (props:any) => {
     const {users} = props
     return (
         <ul className="list-user">
             { 
-                users.map(user => (
+                users.map((user:any) => (
                     <li key={user.id} className='detail-user'>
                         <Link 
                         className='item'
@@ -15,7 +15,7 @@ export const PageChatLeftListUser = (props) => {
                                 <div className='item-dot'></div>
                                 <div className='item-user'>
                                     <div className='item-avatar'>
-                                        <img src={user.avatar}/>
+                                        <img src={user.avatar} alt=""/>
                                         <div className='item-avatar-active'></div>
                                     </div>
                                     <div>
@@ -26,7 +26,7 @@ export const PageChatLeftListUser = (props) => {
                             </div>
                             <div>
                                 <div className='item-time'>{user.exit_time}</div>
-                                <div><span class="badge badge-danger">Khách vip</span></div>
+                                <div><span className="badge badge-danger">Khách vip</span></div>
                             </div>
                         </Link>
                     </li>

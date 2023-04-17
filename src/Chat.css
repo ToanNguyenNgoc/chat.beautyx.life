@@ -230,8 +230,9 @@ img {
     padding: 10px;
     text-align: center;
 }
-.page .chat-left .list-shortcuts .icon-shortcut a {
+.page .chat-left .list-shortcuts .icon-shortcut .icon-shortcut_btn {
     color: #7266ba;
+    cursor: pointer;
 }
 .page .chat-left .list-shortcuts .icon-shortcut .fa-lg {
     line-height: 1em;
