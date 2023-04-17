@@ -1,7 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
+import {Demo} from './Demo';
 
 function App() {
+  const name = 'title';
+  const products = [
+    { title: 'Cabbage', id: 1 },
+    { title: 'Garlic', id: 2 },
+    { title: 'Apple', id: 3 },
+  ];
   return (
     <div className="App">
       <header className="App-header">
@@ -17,9 +24,29 @@ function App() {
         >
           Learn React
         </a>
+        <Demo
+          title={name}
+          products={products}
+        />
       </header>
     </div>
   );
 }
+function MyButton() {
+  return (
+    <button>
+      I'm a button
+    </button>
+  );
+}
 
-export default App;
+export default function MyApp() {
+  return (
+    <div>
+      <h1>Welcome to my app</h1>
+      <MyButton />
+      <App />
+    </div>
+  );
+}
+// export default App;
