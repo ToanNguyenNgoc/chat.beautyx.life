@@ -7,7 +7,7 @@ const axiosClient = axios.create({
   headers: {
     "Accept": "application/json, text/plain, */*",
     "Content-Type": "application/json",
-    "Authorization": `Bearer `
+    "Authorization": `Bearer ${window.sessionStorage.getItem('token')}`
   },
   paramsSerializer: {
     encode: (param: string) => { },

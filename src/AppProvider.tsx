@@ -5,22 +5,28 @@ import { echoConfig } from "src/apis";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Pusher = require('pusher-js')
 
-export type AppContextType = {
-  echo: Echo | null
-}
-interface QueryParams {
+export interface QueryParams {
   token?: string
+}
+export type AppContextType = {
+  echo: Echo | null,
+  queryParams: QueryParams
 }
 export const AppContext = createContext<AppContextType | null>(null);
 export default function AppProvider({ children }: { children: ReactNode }) {
-  const query = queryString.parse(window.location.search) as QueryParams;
+  const queryParams = queryString.parse(window.location.search) as QueryParams;
   const [echo, setEcho] = useState<Echo | null>(null)
+  const token = queryParams.token ?? window.sessionStorage.getItem('token')
   useEffect(() => {
-    if (query.token) { setEcho(echoConfig(query.token)) }
+    if (token) {
+      setEcho(echoConfig(token))
+      window.sessionStorage.setItem('token', token)
+    }
     else {
       echoConfig().disconnect()
     }
-  }, [query.token])
-  const value = { echo };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
+  const value = { echo, queryParams };
   return <AppContext.Provider value={value} > {children} </AppContext.Provider>;
 }
