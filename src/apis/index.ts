@@ -1,34 +1,34 @@
-import axios from "axios";
-import queryString from "query-string";
+import { axiosConfig } from "src/configs"
+import {
+  ContextData,
+  IMessage,
+  ITopic,
+  MessageBody, QueryMessage, QueryTopic, Response, TopicBody
+} from "src/interfaces"
 
-export const baseURL = process.env.REACT_APP_API_DEV;
-const axiosClient = axios.create({
-  baseURL: baseURL,
-  headers: {
-    "Accept": "application/json, text/plain, */*",
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${window.sessionStorage.getItem('token')}`
+const apis = {
+  getProfile:()=>{
+    return axiosConfig.get('/users/profile').then(res => res.data)
   },
-  paramsSerializer: {
-    encode: (param: string) => { },
-    serialize: (params) => queryString.stringify(params),
-    indexes: false,
+  getTopics: (params?: QueryTopic) => {
+    return axiosConfig
+      .get('/topics', { params })
+      .then<Response<ContextData<ITopic[]>>>(res => res.data)
   },
-});
-axiosClient.interceptors.request.use(async (config) => {
-  return config;
-});
-axios.interceptors.response.use(
-  (response) => {
-    if (response && response.data) {
-      return response.data;
-    }
-    return response;
+  postTopic: (data: TopicBody) => {
+    return axiosConfig
+      .post('/topics', data)
+      .then<Response<ITopic>>(res => res.data)
   },
-  (error) => {
-    throw error;
+  getMessages: (params: QueryMessage) => {
+    return axiosConfig
+      .get('/messages', { params })
+      .then<Response<ContextData<IMessage[]>>>(res => res.data)
+  },
+  postMessage: (data: MessageBody) => {
+    return axiosConfig
+      .post('/messages', data)
+      .then<Response<IMessage>>(res => res.data)
   }
-);
-
-export default axiosClient;
-export * from './echoConfig'
+}
+export default apis

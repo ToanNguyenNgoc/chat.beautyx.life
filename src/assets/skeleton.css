@@ -1,0 +1,31 @@
+
+.placeholder {
+  position: relative;
+  background: #f1f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.placeholder:after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100px;
+  left: -100px;
+  top: 0;
+  background: linear-gradient(to right, transparent, #ffffffc4, transparent);
+  animation: reflect 1000ms ease-out infinite;
+}
+
+.title {
+  width: 100%;
+  min-height: 20px;
+  height: 100%;
+}
+
+
+@keyframes reflect {
+  to {
+    left: calc(100% + 100px);
+  }
+}

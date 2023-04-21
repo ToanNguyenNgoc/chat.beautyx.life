@@ -1,6 +1,6 @@
-import Chat from 'src/Chat';
-import PageChatRight from '../PageChatRight';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { PageChatRight } from 'src/components';
+import { Chat, Test } from 'src/pages/_index';
 
 const RouterConfig = () => {
   const router = createBrowserRouter([
@@ -18,6 +18,10 @@ const RouterConfig = () => {
         }
       ]
     },
+    {
+      path: '/test',
+      element: <Test />
+    }
   ]);
   return (
     <RouterProvider router={router} />

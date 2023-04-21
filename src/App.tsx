@@ -1,10 +1,16 @@
-import AppProvider from "src/AppProvider";
 import RouterConfig from "./router";
+import { QueryClientProvider } from "@tanstack/react-query"
+import { queryClient } from "src/configs";
+import AppProvider from "src/context/AppProvider";
+
+
 
 export default function App() {
   return (
-    <AppProvider>
-      <RouterConfig />
-    </AppProvider>
+    <QueryClientProvider client={queryClient} >
+      <AppProvider>
+        <RouterConfig />
+      </AppProvider>
+    </QueryClientProvider>
   );
 }

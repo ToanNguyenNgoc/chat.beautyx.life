@@ -1,3 +1,4 @@
+
 .pt-3 {
     padding: 0px !important;
 }
@@ -9,15 +10,16 @@
 .page {
     border: 1px solid #ccc;
     border-radius: 10px;
-    height: 100dvh;
+    /* height: 100dvh; */
 }
 
 .row {
     height: 100%;
+    margin: 0px;
 }
 
 .no-pl {
-    padding-left: 0px;
+    padding: 0px;
 }
 
 .no-pr {
@@ -45,68 +47,10 @@
     padding:12px;
 }
 
-.detail-user {
-    list-style: none;
-    padding:20px 12px;
-    margin-bottom: 4px;
-    border-radius: 8px;
-    transition:  all .6s;
-}
-.detail-user:hover{
-    background-color: #f5f5f5;
-    transition:  all .6s;
-}
 
-.item {
-    display: flex;
-    justify-content: space-between;
-}
-
-.item-left {
-    display: flex;
-    align-items: center;
-}
-
-.item-dot {
-    background-color: #683cb9;
-    border-radius: 100%;
-    flex-shrink: 0;
-    height: 8px;
-    margin-right: 8px;
-    width: 8px;
-}
-
-.item-user {
-    display: flex;
-    align-items: center;
-    gap: 10px
-}
-
-.item-avatar {
-    width: 40px;
-    height: 40px;
-    position: relative;
-}
-
-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 100%;
-}
-
-.item-avatar-active {
-    background-color: #42c318;
-    border: 2px solid #fff;
-    border-radius: 100%;
-    bottom: 0;
-    height: 17px;
-    position: absolute;
-    right: 0px;
-    width: 17px;
-}
 
 .page-right {
-    height: 100dvh;
+    height: 100vh;
     position: relative;
 }
 
@@ -133,6 +77,16 @@ img {
     width: 50px;
     height: 50px;
     margin-right: 10px;
+    position: relative;
+    border-radius: 100%;
+}
+.head-avatar img{
+    position: absolute;
+    z-index: 1;
+    border-radius: 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .head-username {
@@ -142,6 +96,14 @@ img {
 
 .head-name {
     margin-right: 10px;
+    width: 82px;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    color: var(--dark);
 }
 
 .head-status>span:first-child {
@@ -171,9 +133,7 @@ img {
     display: none;
 }
 
-.page-right-message {
-    padding: 20px 20px 40px;
-}
+
 
 .page-left .head-title {
     display: flex;
@@ -217,19 +177,123 @@ img {
     margin-right: 10px;
 }
 
-.page-left .page-left-list .list-user .detail-user .item-last-message {
-    color: #adadad;
+.detail-user {
+    margin-bottom: 2px;
 }
+.detail-user_item{
+    border-radius: 8px;
+    display: block;
+    width: 100%;
+    height: 70px;
+    padding: 8px;
+    text-decoration: none;
+    transition: all .7s;
+}
+.detail-user_item:hover{
+    background-color: #f5f5f5;
+    transition: all .7s;
+}
+.detail-user_item:hover{
+    text-decoration: none;
+}
+.detail-user_item-cnt{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+}
+.detail-user_item-cnt-avt{
+    width: 48px;
+    height: 48px;
+    border-radius: 100%;
+    position: relative;
+}
+.detail-user_item-cnt-avt img{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    z-index: 1;
+    object-fit: cover;
+}
+.detail-user_item-cnt-avt span{
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    z-index: 2;
+    border-radius: 100%;
+    bottom: 0;
+    right: 0;
+    border: solid 1px var(--white);
+    margin: 0px 3px 3px 0px;
+    background-color: var(--green);
+}
+.detail-user_item-cnt-right{
+    height: 100%;
+    width: calc(100% - 58px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.topic-left{
+    height: 100%;
+    width: calc(100% - 30px);
+}
+.topic-left-name{
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    color: var(--dark);
+}
+.topic-left-msg{
+    display: flex;
+    align-items: center;
+    margin-top: 6px;
+}
+.topic-left-msg-time,
+.topic-left-msg-txt{
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    color: var(--gray);
+}
+.topic-left-msg-txt{
+    font-weight: 600;
+    max-width: calc(100% - 80px);
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+.topic-left-msg-time{
+    margin-left: 4px;
+}   
+.topic-right{
+    color: #9e9e9e;
+    padding: 6px 8px;
+}
+
+
+
 
 .page-right .page-right-head .call button i {
     color: #0c0cd1;
 }
 
-.page-right .page-right-foot {
-    position: absolute;
+.page-right-foot {
+    position: fixed;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    right:0;
+    width: calc(66.666667% + 12px);
     padding: 10px 20px;
     display: flex;
     align-items: center;
@@ -237,12 +301,12 @@ img {
     background-color: white;
 }
 
-.page-right .page-right-foot .list-icon {
+.page-right-foot .list-icon {
     display: flex;
     align-items: center;
 }
 
-.page-right .page-right-foot .list-icon button {
+.page-right-foot .list-icon button {
     border-radius: 100%;
     background-color: #095bef;
     padding: 1px 6px;
@@ -250,22 +314,23 @@ img {
     margin-right: 10px;
 }
 
-.page-right .page-right-foot .content {
+.page-right-foot .content {
     width: 100%;
 }
 
-.page-right .page-right-foot .content .input-group input {
+.page-right-foot .content .input-group input {
     border-radius: 24px 0px 0px 24px;
 }
 
-.page-right .page-right-foot .content .input-group button {
+.page-right-foot .content .input-group button {
     background-color: #095bef;
     padding: 0px 10px;
     color: #fff;
     margin-right: 10px;
+    width: 36px;
 }
 
-.page-right .page-right-foot .icon-like button {
+.page-right-foot .icon-like button {
     border-radius: 100%;
     background-color: #095bef;
     padding: 1px 6px;
@@ -274,9 +339,7 @@ img {
 }
 
 .page-right .page-right-message {
-    padding: 112px 10px 81px 10px;
-    height: calc(100% - 58px);
-    overflow-y: scroll;
+    padding: 0px;
 }
 
 .page .icon-shortcuts {
@@ -286,6 +349,7 @@ img {
 .page .chat-left {
     display: flex;
     justify-content: space-between;
+    padding: 0px;
 }
 
 .page .chat-left .list-shortcuts {
@@ -323,6 +387,7 @@ img {
 /* chat message item */
 .page-right-message .message-item-cnt {
     padding: 2px 0px;
+    min-height: 20px;
 }
 
 .page-right-message .user-name {
@@ -339,6 +404,14 @@ img {
 
 .body_user {
     justify-content: flex-end !important;
+}
+
+.message-cnt {
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column-reverse
 }
 
 .page-right-message .body .body-message {
@@ -380,6 +453,7 @@ img {
     line-height: 18px;
     margin: 4px 0px;
     width: fit-content;
+    word-break:break-word;
 }
 
 .body-text_user {
@@ -394,37 +468,87 @@ img {
     line-height: 13px;
     font-weight: 400;
 }
+.spinner-rote{
+    animation: rotateSpinner 1800ms linear infinite;
+}
+.bottom-ref{
+    width: 1px;
+    height: 100px;
+}
+@keyframes rotateSpinner {
+	to {
+		transform: rotate(360deg);
+	}
+}
+/* load message */
+.load-mes-item{
+    width: 70%;
+    height: 100px;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+}
+.load-mes-item_avt{
+    width: 42px;
+    height: 42px;
+    border-radius: 100%;
+    overflow: hidden;
+}
+.load-mes-item_txt{
+    width: calc(100% - 54px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.load-mes-item_txt-name{
+    width: 50%;
+    height: 10px;
+}
+.load-mes-item_txt-mes{
+    height: 50px;
+}
 
-@media only screen and (max-width: 992px) and (min-width: 768px) {
-    .page-left .list-user .detail-user {
-        padding: 15px;
+@media only screen and (max-width: 992px) and (min-width: 767px) {
+    .page .chat-left{
+        padding: 0px;
     }
-
-    .page-left .list-user .detail-user .item {
-        height: 50px;
+    .page .chat-left .list-shortcuts{
+        width: 16.6%;
     }
-
-    .page-left .list-user .detail-user .item-user {
-        height: 50px;
+    .page .chat-left .list-shortcuts .icon-shortcut{
+        padding: 8px;
     }
-
-    .page-left .list-user .detail-user .item-avatar {
-        width: 50px;
-        height: 50px;
+    .page-left-head{
+        padding: 12px 8px;
     }
-
-    .page-left .list-user .detail-user .item-user .item-last-message {
-        display: none;
+    .page-left .page-left-classify{
+        padding: 0px 8px;
     }
-
-    .page-left .list-user .detail-user .item .item-time {
-        display: none;
+    .list-user{
+        padding: 8px;
+    }
+    .detail-user_item{
+        padding: 4px;
+        height: 58px;
+    }
+    .detail-user_item-cnt{
+        align-items: flex-start;
+    }
+    .detail-user_item-cnt-avt{
+        width: 36px;
+        height: 36px;
+    }
+    .detail-user_item-cnt-right{
+        width: calc(100% - 44px);
     }
 }
 
 @media only screen and (max-width: 767px) {
     .row{
         margin: 0px;
+    }
+    .head-back{
+        display: block;
     }
 
     .page-left {
@@ -473,39 +597,26 @@ img {
         display: block;
         padding: 0px;
     }
+    .topic-left{
+        border-bottom:solid 1px #eeeeee;
+    }
 
     .chat-right {
         display: none;
         padding: 0px;
     }
+    .bottom-ref{
+        height: 180px;
+    }
+    .bottom-ref-2{
+        height: 100px;
+    }
     .list-user{
         padding:150px 0px 80px 0px
     }
 
-    .page-left .list-user .detail-user {
-        padding: 15px;
-    }
-
-    .page-left .list-user .detail-user .item {
-        height: 50px;
-    }
-
-    .page-left .list-user .detail-user .item-user {
-        height: 50px;
-    }
-
-    .page-left .list-user .detail-user .item-avatar {
-        width: 50px;
-        height: 50px;
-    }
-
-    .page-left .list-user .detail-user .item .item-time {
-        display: none;
-    }
-
     .page {
         border: none;
-        height: 100%;
     }
     .page-left-list{
         height: max-content;
@@ -515,24 +626,18 @@ img {
         padding:0px
     }
 
-    .page-right .page-right-head {
+    .page-right-head {
         position: fixed;
         padding: 12px;
         backdrop-filter: blur(9px);
         background-color: hsla(0,0%,100%,.75);
     }
 
-    .page-right .page-right-foot {
-        position: fixed;
+    .page-right-foot {
+        width: 100%;
         padding: 8px 12px 20px 12px;
         backdrop-filter: blur(9px);
         background-color: hsla(0,0%,100%,.75);
-    }
-
-    .page-right .page-right-message {
-        padding: 100px 0px 70px 0px;
-        overflow-y: initial;
-        height: max-content;
     }
 
     .page-right .page-right-head .head-back {
@@ -547,5 +652,8 @@ img {
     }
     .body-message_user{
         justify-content: flex-end !important;
+    }
+    .load-mes-item{
+        width: 100%;
     }
 }
