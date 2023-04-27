@@ -1,3 +1,8 @@
+export interface LoginBody {
+  username: string;
+  password: string;
+}
+
 export interface TopicBody {
   org: number | string;
   recipient_id?: number | string;

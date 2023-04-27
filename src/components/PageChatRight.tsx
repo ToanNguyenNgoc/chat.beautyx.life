@@ -1,36 +1,62 @@
-import { Link, useParams } from "react-router-dom";
-import moment from "moment";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apis from "src/apis";
-import React, { ChangeEvent, useRef, useState } from "react";
-import { MessageBody } from "src/interfaces";
-import { Skeleton } from "src/components/Skeleton";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Link, useLocation, useParams } from "react-router-dom";
+import dayjs from "dayjs";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import React, { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { AppContext, AppContextType } from "src/context/AppProvider";
+import apis from "src/apis";
+import { linkify, onErrorImg, useOnScreen } from "src/utils";
+import { IMessage, ITopic, MessageBody } from "src/interfaces";
+import { Skeleton } from "./Skeleton";
+import { Typing } from "./Typing"
+import icon from "src/assets/icon";
 
 export function PageChatRight() {
    const params = useParams()
+   const location = useLocation()
+   const curTopic: ITopic | null = location?.state
+   const { echo, user } = useContext(AppContext) as AppContextType
+   const [messages, setMessages] = useState<IMessage[]>([])
    const bottomRef = useRef<HTMLDivElement>(null)
-   const user_id = 112
+   const isInScreen = useOnScreen({ rootMargin: '0px', threshold: 0.3 }, bottomRef)
    const { data, isLoading, fetchNextPage } = useInfiniteQuery({
-      queryKey: [params.id],
+      queryKey: ['CHAT', params.id],
       queryFn: ({ pageParam = 1 }) => apis.getMessages({
          p: pageParam,
          topic_id: params.id ?? '',
          l: 15,
-         sort: '-created_at'
+         sort: '-created_at',
       }),
       enabled: (params.id) ? true : false,
-      getNextPageParam: (page: any) => {
-         if (page.context?.current_page <= page.context?.last_page) {
-            return page?.context?.current_page + 1
-         }
-         return null
-      }
+      getNextPageParam: (page: any) => page?.context?.current_page + 1
    })
    const messagesT = data?.pages.map(i => i.context.data).flat() ?? []
+   const totalItem = data?.pages[0]?.context?.total ?? 0
+   useEffect(() => {
+      if (echo) {
+         let chat: any = echo.join(`ci.chat.demo.${params.id}`)
+            .subscribed(() => {
+               chat.whisper('connected', {
+                  user: {
+                     id: user.id,
+                     fullname: user.fullname,
+                     avatar: user.avatar
+                  }, socketId: echo?.socketId()
+               })
+               chat.listenForWhisper('typing', (u: any) => {
+                  // console.log(u)
+               })
+            })
+            .listen('MessagePosted', (u: IMessage) => {
+               setMessages(prev => [u, ...prev])
+            })
+      }
+   }, [echo, params.id])
    const onScrollBottom = () => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" })
    }
+
    return (
       <>
          <div className='page-right-head'>
@@ -43,11 +69,18 @@ export function PageChatRight() {
                   </Link>
                </div>
                <div className='head-avatar'>
-                  <img src="https://devapi.myspa.vn/media/10084/277763215_543969187157980_5261600049025341561_n.jpeg?v=1678373000" alt="" />
+                  {
+                     (curTopic?.topic_user?.length ?? 0) > 1 ?
+                        <img src={icon.userGroup} alt="" />
+                        :
+                        <img src={curTopic?.topic_user[0]?.topic_user?.avatar ?? ''} onError={onErrorImg} alt="" />
+                  }
                </div>
                <div>
                   <div className='head-username'>
-                     <span className='head-name'>Sói cô đơn Sói cô đơn Sói cô đơn Sói cô đơn Sói cô đơn</span>
+                     <span className='head-name'>
+                        {curTopic?.name ?? curTopic?.topic_user?.map(i => i.topic_user?.fullname)?.join(',')}
+                     </span>
                      <div className='head-status'>
                         <span></span>
                         <span>Online</span>
@@ -68,7 +101,7 @@ export function PageChatRight() {
          >
             <InfiniteScroll
                dataLength={messagesT?.length ?? 10}
-               hasMore={true}
+               hasMore={messagesT.length < totalItem ? true : false}
                loader={<></>}
                next={fetchNextPage}
                inverse={true}
@@ -78,37 +111,38 @@ export function PageChatRight() {
             >
                {isLoading && <LoadMessage />}
                <div ref={bottomRef} className="bottom-ref" />
+               <ScrollBottomBtn onClick={onScrollBottom} show={isInScreen} />
+               {/* <Typing/> */}
                {
-                  messagesT?.map((item) => (
-                     <div key={item._id} className="message-item-cnt">
-                        <div className={item.user_id === user_id ? "body body_user" : "body"}>
+                  messages.concat(messagesT).map((item, index) => (
+                     <div key={index} className="message-item-cnt">
+                        <div className={item.user_id === user.id ? "body body_user" : "body"}>
                            <div
                               className={
-                                 item.user_id === user_id ?
+                                 item.user_id === user.id ?
                                     "body-message body-message_user" :
                                     "body-message"
                               }>
                               {
-                                 user_id !== item.user_id ?
+                                 user.id !== item.user_id ?
                                     <div className="user-avatar">
-                                       <img src="https://devapi.myspa.vn/media/10084/277763215_543969187157980_5261600049025341561_n.jpeg?v=1678373000" alt="" />
+                                       <img src={item.user.avatar ?? ''} onError={onErrorImg} alt="" />
                                     </div>
                                     :
                                     <div style={{ backgroundColor: 'transparent' }} className="user-avatar"></div>
                               }
                               <div className="message-item-right">
-                                 {user_id !== item.user_id && <p className="user-name">Gấu chó</p>}
+                                 {user.id !== item.user_id && <p className="user-name">{item.user?.fullname}</p>}
                                  <p
                                     className={
-                                       item.user_id === user_id ?
+                                       item.user_id === user.id ?
                                           "body-text body-text_user" :
                                           "body-text"
                                     }
-                                 >
-                                    {item.msg}
-                                 </p>
+                                    dangerouslySetInnerHTML={{ __html: linkify(item.msg) }}
+                                 />
                                  <p className="message-item-create">
-                                    {moment(item.created_at).format('HH:mm DD/MM/YY')}
+                                    {dayjs(item.created_at).format('HH:mm DD/MM/YY')}
                                  </p>
                               </div>
                            </div>
@@ -131,23 +165,23 @@ interface InputChatProps {
 
 const InputChat = (props: InputChatProps) => {
    const { topic_id, onScrollBottom } = props
-   const initial = { msg: '', topic_id: topic_id }
-   const [message, setMessage] = useState<MessageBody>(initial)
-   const queryClient = useQueryClient()
+   const [message, setMessage] = useState('')
+   // const queryClient = useQueryClient()
    const { mutate, isLoading } = useMutation({
-      mutationKey: [topic_id],
-      mutationFn: () => apis.postMessage(message),
-      onSuccess: (result, variables, context) => {
-         queryClient.setQueryData([topic_id], (old: any) => {
-            const res = { ...result, context: { data: [result.context] } }
-            setMessage(initial)
-            return { ...old, pages: [res, ...old.pages] }
-         })
+      mutationKey: ['CHAT', topic_id],
+      mutationFn: (body: MessageBody) => apis.postMessage(body),
+      onSuccess: (result: any, variables, context) => {
+         setMessage('')
+         // queryClient.setQueryData(['CHAT', topic_id], (old: any) => {
+         //    const res = { ...result, context: { data: [result.context] } }
+         //    setMessage(initial)
+         //    return { ...old, pages: [res, ...old.pages] }
+         // })
       },
    })
    const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
       e.preventDefault()
-      mutate()
+      mutate({ topic_id: topic_id, msg: message })
       if (onScrollBottom) onScrollBottom()
    }
    return (
@@ -159,8 +193,8 @@ const InputChat = (props: InputChatProps) => {
          <div className='content'>
             <form onSubmit={onSubmit} className="input-group">
                <input
-                  value={message.msg}
-                  onChange={(e) => setMessage({ ...message, msg: e.target.value })}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   type="text"
                   className="form-control" placeholder="Aa"
                />
@@ -207,5 +241,21 @@ export const LoadMessage = () => {
       <ul>
          {items}
       </ul>
+   )
+}
+
+interface ScrollBottomBtnProps {
+   show: boolean;
+   onClick?: () => void
+}
+
+const ScrollBottomBtn = (props: ScrollBottomBtnProps) => {
+   return (
+      <button
+         onClick={props.onClick && props.onClick}
+         className={props.show ? "scroll-btn" : "scroll-btn scroll-btn-act"}
+      >
+         <i className="fa fa-arrow-down" aria-hidden="true"></i>
+      </button>
    )
 }

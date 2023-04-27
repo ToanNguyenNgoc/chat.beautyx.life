@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { PageChatRight } from 'src/components';
-import { Chat, Test } from 'src/pages/_index';
+import { Chat, Login } from 'src/pages/_index';
 
 const RouterConfig = () => {
   const router = createBrowserRouter([
@@ -19,8 +19,8 @@ const RouterConfig = () => {
       ]
     },
     {
-      path: '/test',
-      element: <Test />
+      path: '/login',
+      element: <Login />
     }
   ]);
   return (

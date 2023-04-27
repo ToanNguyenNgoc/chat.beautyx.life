@@ -1,3 +1,4 @@
+
 import Echo from "laravel-echo";
 import queryString from "query-string";
 import { ReactNode, createContext, useEffect, useState } from "react";
@@ -7,25 +8,32 @@ import { echoConfig } from "src/configs";
 const Pusher = require('pusher-js')
 
 export interface QueryParams {
-  token?: string
+  token?: string;
+  subdomain?: string;
 }
 export type AppContextType = {
   echo: Echo | null,
   queryParams: QueryParams,
-  user:any
+  user: any,
+  subdomain: string,
+  setUser:React.Dispatch<any>
 }
 export const AppContext = createContext<AppContextType | null>(null);
 export default function AppProvider({ children }: { children: ReactNode }) {
   const queryParams = queryString.parse(window.location.search) as QueryParams;
   const [echo, setEcho] = useState<Echo | null>(null)
   const [user, setUser] = useState<any>({})
-  const token = queryParams.token ?? window.sessionStorage.getItem('token')
+  const token = queryParams.token || window.sessionStorage.getItem('token') || ''
+  const subdomain = queryParams.subdomain || window.sessionStorage.getItem('subdomain') || ''
   const getUser = async () => {
     const response = await apis.getProfile()
     setUser(response?.context)
   }
   useEffect(() => {
-    if (token) {
+    if (subdomain) {
+      window.sessionStorage.setItem('subdomain', subdomain)
+    }
+    if (token && subdomain) {
       getUser()
       setEcho(echoConfig(token))
       window.sessionStorage.setItem('token', token)
@@ -34,7 +42,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       echoConfig().disconnect()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token])
-  const value = { echo, queryParams, user };
+  }, [])
+  const value = { echo, queryParams, user, subdomain, setUser };
   return <AppContext.Provider value={value} > {children} </AppContext.Provider>;
 }

@@ -30,7 +30,20 @@ export interface ITopic {
   name: string | null,
   updated_at: string,
   created_at: string,
-  messages: IMessage[]
+  messages: IMessage[],
+  topic_user: TopicUser[]
+}
+export interface TopicUser {
+  joined_at: string;
+  topic_id: string;
+  topic_user: {
+    avatar: string | null;
+    current_platform: string | null;
+    fullname: string;
+    id: string;
+  },
+  user_id: number;
+  _id: string;
 }
 export interface IMessage {
   _id: string,
@@ -39,5 +52,24 @@ export interface IMessage {
   topic_id: string,
   reply_id: null | string,
   updated_at: string,
-  created_at: string
+  created_at: string,
+  user:IUser,
+}
+export interface IUser {
+  id: number,
+  fullname: string,
+  email: string,
+  telephone: string | null,
+  birthday: string | null,
+  gender: string | null,
+  token: string,
+  token_expired_at: string,
+  refresh_token: string,
+  avatar: string | null,
+  current_platform: string | null,
+  ci_api_token: string,
+  ci_user: any,
+  platform: string,
+  roles: string,
+  permissions: string
 }

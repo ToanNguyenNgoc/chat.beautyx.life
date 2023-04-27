@@ -3,11 +3,21 @@ import {
   ContextData,
   IMessage,
   ITopic,
-  MessageBody, QueryMessage, QueryTopic, Response, TopicBody
+  IUser,
+  LoginBody,
+  MessageBody,
+  QueryMessage,
+  QueryTopic,
+  Response,
+  TopicBody
 } from "src/interfaces"
 
+
 const apis = {
-  getProfile:()=>{
+  postLogin: (org: string, body: LoginBody) => {
+    return axiosConfig.post(`auth/${org}/login`, body).then<Response<IUser>>(res => res.data)
+  },
+  getProfile: () => {
     return axiosConfig.get('/users/profile').then(res => res.data)
   },
   getTopics: (params?: QueryTopic) => {

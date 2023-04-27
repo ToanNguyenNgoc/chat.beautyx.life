@@ -1,24 +1,40 @@
 import Echo from 'laravel-echo';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import apis from 'src/apis';
-import { Link } from 'react-router-dom';
-import { dateFromNow } from 'src/utils';
+import { useNavigate, useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useContext } from 'react';
+import { AppContext, AppContextType } from 'src/context/AppProvider';
+import apis from 'src/apis';
 import { LoadMessage } from 'src/components';
+import { dateFromNow, onErrorImg } from 'src/utils';
+import icon from 'src/assets/icon';
 
 interface ChatLeftProps {
-  echo: Echo | null
+  echo: Echo | null,
+  isDesktopOrLaptop: boolean
 }
 
 export function PageChatLeft(props: ChatLeftProps) {
-  const { echo } = props
+  const { subdomain } = useContext(AppContext) as AppContextType
+  const navigate = useNavigate()
+  const params = useParams()
   const { data, isLoading, fetchNextPage } = useInfiniteQuery({
     queryKey: ['TOPICS'],
     queryFn: ({ pageParam = 1 }) => apis.getTopics({
       p: pageParam,
       l: 14,
-      sort: '-updated_at'
+      sort: '-updated_at',
+      org: subdomain ?? ''
     }),
+    onSuccess: (data) => {
+      // const firstTopic = data.pages[0]?.context?.data[0]
+      // if (data.pages.length === 1 && firstTopic && isDesktopOrLaptop) {
+      //   navigate(
+      //     `/chats/${firstTopic._id}`,
+      //     { state: firstTopic }
+      //   )
+      // }
+    },
     getNextPageParam: (page: any) => {
       if (page.context?.current_page <= page.context?.last_page) {
         return page?.context?.current_page + 1
@@ -49,7 +65,7 @@ export function PageChatLeft(props: ChatLeftProps) {
         <div>Communities</div>
       </div>
       <div className='page-left-list'>
-        {isLoading && <LoadMessage/>}
+        {isLoading && <LoadMessage />}
         <InfiniteScroll
           dataLength={topics.length}
           hasMore={true}
@@ -60,22 +76,32 @@ export function PageChatLeft(props: ChatLeftProps) {
             {
               topics.map(topic => (
                 <li key={topic._id} className='detail-user'>
-                  <Link
+                  <div
+                    style={params.id === topic._id ? { backgroundColor: '#f5f5f5' } : {}}
                     className='detail-user_item'
-                    to={{ pathname: `/chats/${topic._id}` }}
+                    onClick={() => navigate(
+                      `/chats/${topic._id}`,
+                      { state: topic }
+                    )}
                   >
                     <div className="detail-user_item-cnt">
                       <div className="detail-user_item-cnt-avt">
-                        <img
-                          src="https://devapi.myspa.vn/media/10084/277763215_543969187157980_5261600049025341561_n.jpeg?v=1678373000"
-                          alt=""
-                        />
+                        {
+                          topic.topic_user?.length > 1 ?
+                          <img src={icon.userGroup} alt="" />
+                            :
+                            <img
+                              src={topic.topic_user[0]?.topic_user?.avatar ?? ''}
+                              alt=""
+                              onError={onErrorImg}
+                            />
+                        }
                         <span></span>
                       </div>
                       <div className="detail-user_item-cnt-right">
                         <div className="topic-left">
                           <span className="topic-left-name">
-                            Gấu chó Gấu chó Gấu chó Gấu chó Gấu chó Gấu chó
+                            {topic.name || topic.topic_user?.map(i => i.topic_user?.fullname)?.join(',')}
                           </span>
                           <div className="topic-left-msg">
                             <span className="topic-left-msg-txt">
@@ -91,7 +117,7 @@ export function PageChatLeft(props: ChatLeftProps) {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 </li>
               ))
             }
