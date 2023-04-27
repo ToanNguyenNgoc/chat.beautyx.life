@@ -13,7 +13,6 @@ firebase.json
 /coverage
 
 # production
-/build
 package-lock.json
 
 # misc
