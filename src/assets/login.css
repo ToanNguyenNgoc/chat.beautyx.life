@@ -1,0 +1,72 @@
+.login {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 45vw;
+  padding: 32px 24px;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0px 0px 16px -1px rgba(0, 0, 0, .1);
+  ;
+}
+
+.login-card_title {
+  text-align: center;
+  color: var(--indigo);
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.login-card_form {
+  margin-top: 32px;
+}
+.form-row{
+  position: relative;
+  padding-bottom: 12px;
+}
+.form-row-error{
+  position: absolute;
+  color: var(--red);
+  font-size: 11px;
+  bottom: -4px;
+}
+
+.login-card_form-bot {
+  margin-top: 24px;
+}
+
+.form-btn {
+  width: 100%;
+  height: 38px;
+  position: relative;
+}
+
+.form-btn .btn-primary {
+  width: 100%;
+  background: rgb(50, 38, 255);
+  background: linear-gradient(166deg, rgba(50, 38, 255, 1) 0%, rgba(114, 101, 185, 1) 34%, rgba(115, 140, 211, 1) 100%);
+  border: none;
+}
+
+.form-btn-load {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(50, 38, 255);
+  background: linear-gradient(166deg, rgba(50, 38, 255, 1) 0%, rgba(114, 101, 185, 1) 34%, rgba(115, 140, 211, 1) 100%);
+  border-radius: 0.25rem;
+}
+
+.form-btn-load .spinner-rote {
+  color: var(--white);
+}
