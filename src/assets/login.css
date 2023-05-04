@@ -70,3 +70,8 @@
 .form-btn-load .spinner-rote {
   color: var(--white);
 }
+@media only screen and (max-width: 767px) {
+  .login-card{
+    width: calc(100vw - 32px);
+  }
+}

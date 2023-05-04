@@ -18,6 +18,7 @@ export function PageChatRight() {
    const curTopic: ITopic | null = location?.state
    const { echo, user } = useContext(AppContext) as AppContextType
    const [messages, setMessages] = useState<IMessage[]>([])
+   const [isTyping, setIsTyping] = useState()
    const bottomRef = useRef<HTMLDivElement>(null)
    const isInScreen = useOnScreen({ rootMargin: '0px', threshold: 0.3 }, bottomRef)
    const { data, isLoading, fetchNextPage } = useInfiniteQuery({
@@ -45,7 +46,7 @@ export function PageChatRight() {
                   }, socketId: echo?.socketId()
                })
                chat.listenForWhisper('typing', (u: any) => {
-                  // console.log(u)
+                  setIsTyping(u?.user?.isTyping)
                })
             })
             .listen('MessagePosted', (u: IMessage) => {
@@ -112,7 +113,7 @@ export function PageChatRight() {
                {isLoading && <LoadMessage />}
                <div ref={bottomRef} className="bottom-ref" />
                <ScrollBottomBtn onClick={onScrollBottom} show={isInScreen} />
-               {/* <Typing/> */}
+               {isTyping && <Typing />}
                {
                   messages.concat(messagesT).map((item, index) => (
                      <div key={index} className="message-item-cnt">
@@ -165,13 +166,25 @@ interface InputChatProps {
 
 const InputChat = (props: InputChatProps) => {
    const { topic_id, onScrollBottom } = props
+   const { echo, user } = useContext(AppContext) as AppContextType
    const [message, setMessage] = useState('')
-   // const queryClient = useQueryClient()
+   const onEmitTyping = (isTyping: boolean) => {
+      let chat: any = echo?.join(`ci.chat.demo.${topic_id}`)
+      chat?.whisper('typing', {
+         user: {
+            id: user.id,
+            fullname: user.fullname,
+            avatar: user.avatar,
+            isTyping: isTyping
+         }, socketId: echo?.socketId()
+      })
+   }
    const { mutate, isLoading } = useMutation({
       mutationKey: ['CHAT', topic_id],
       mutationFn: (body: MessageBody) => apis.postMessage(body),
       onSuccess: (result: any, variables, context) => {
          setMessage('')
+         onEmitTyping(false)
          // queryClient.setQueryData(['CHAT', topic_id], (old: any) => {
          //    const res = { ...result, context: { data: [result.context] } }
          //    setMessage(initial)
@@ -179,6 +192,10 @@ const InputChat = (props: InputChatProps) => {
          // })
       },
    })
+   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+      setMessage(e.target.value)
+   }
+
    const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
       e.preventDefault()
       mutate({ topic_id: topic_id, msg: message })
@@ -193,8 +210,10 @@ const InputChat = (props: InputChatProps) => {
          <div className='content'>
             <form onSubmit={onSubmit} className="input-group">
                <input
+                  onFocus={() => onEmitTyping(true)}
+                  onBlur={() => onEmitTyping(false)}
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={onInputChange}
                   type="text"
                   className="form-control" placeholder="Aa"
                />
