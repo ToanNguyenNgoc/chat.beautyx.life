@@ -51,7 +51,7 @@ export interface IMessage {
   user_id: number,
   topic_id: string,
   reply_id: null | string,
-  updated_at: string,
+  updated_at?: string,
   created_at: string,
   user:IUser,
 }

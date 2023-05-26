@@ -17,6 +17,7 @@ export function PageChatRight() {
    const location = useLocation()
    const curTopic: ITopic | null = location?.state
    const { echo, user } = useContext(AppContext) as AppContextType
+   const user_id = user.id
    const [messages, setMessages] = useState<IMessage[]>([])
    const [isTyping, setIsTyping] = useState()
    const bottomRef = useRef<HTMLDivElement>(null)
@@ -42,7 +43,8 @@ export function PageChatRight() {
                   user: {
                      id: user.id,
                      fullname: user.fullname,
-                     avatar: user.avatar
+                     avatar: user.avatar,
+                     current_platform: 'MANAGER_WEB'
                   }, socketId: echo?.socketId()
                })
                chat.listenForWhisper('typing', (u: any) => {
@@ -50,8 +52,12 @@ export function PageChatRight() {
                })
             })
             .listen('MessagePosted', (u: IMessage) => {
+               console.log(user,u)
                setMessages(prev => [u, ...prev])
             })
+      }
+      return () => {
+         setMessages([])
       }
    }, [echo, params.id])
    const onScrollBottom = () => {
@@ -161,11 +167,11 @@ export function PageChatRight() {
 
 interface InputChatProps {
    topic_id: string;
-   onScrollBottom?: () => void
+   onScrollBottom?: () => void;
+   setMessages?: React.Dispatch<React.SetStateAction<IMessage[]>>
 }
-
 const InputChat = (props: InputChatProps) => {
-   const { topic_id, onScrollBottom } = props
+   const { topic_id, onScrollBottom, setMessages } = props
    const { echo, user } = useContext(AppContext) as AppContextType
    const [message, setMessage] = useState('')
    const onEmitTyping = (isTyping: boolean) => {
@@ -187,7 +193,7 @@ const InputChat = (props: InputChatProps) => {
          onEmitTyping(false)
          // queryClient.setQueryData(['CHAT', topic_id], (old: any) => {
          //    const res = { ...result, context: { data: [result.context] } }
-         //    setMessage(initial)
+         //    // setMessage(initial)
          //    return { ...old, pages: [res, ...old.pages] }
          // })
       },
@@ -198,8 +204,20 @@ const InputChat = (props: InputChatProps) => {
 
    const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
       e.preventDefault()
-      mutate({ topic_id: topic_id, msg: message })
       if (onScrollBottom) onScrollBottom()
+      // if (setMessages) {
+      //    setMessages(prev => [{
+      //       _id: dayjs().format('HHmmss'),
+      //       created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+      //       msg: message,
+      //       topic_id: topic_id,
+      //       user: user,
+      //       user_id: user.id,
+      //       reply_id: null
+      //    }, ...prev])
+      // }
+      setMessage('')
+      mutate({ topic_id: topic_id, msg: message })
    }
    return (
       <div className='page-right-foot'>
