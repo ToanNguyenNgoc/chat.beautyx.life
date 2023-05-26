@@ -16,7 +16,8 @@ export type AppContextType = {
   queryParams: QueryParams,
   user: any,
   subdomain: string,
-  setUser:React.Dispatch<any>
+  setUser:React.Dispatch<any>,
+  setEcho:React.Dispatch<React.SetStateAction<Echo | null>>
 }
 export const AppContext = createContext<AppContextType | null>(null);
 export default function AppProvider({ children }: { children: ReactNode }) {
@@ -43,6 +44,6 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const value = { echo, queryParams, user, subdomain, setUser };
+  const value = { echo, queryParams, user, subdomain, setUser, setEcho };
   return <AppContext.Provider value={value} > {children} </AppContext.Provider>;
 }

@@ -17,7 +17,6 @@ export function PageChatRight() {
    const location = useLocation()
    const curTopic: ITopic | null = location?.state
    const { echo, user } = useContext(AppContext) as AppContextType
-   const user_id = user.id
    const [messages, setMessages] = useState<IMessage[]>([])
    const [isTyping, setIsTyping] = useState()
    const bottomRef = useRef<HTMLDivElement>(null)
@@ -36,7 +35,7 @@ export function PageChatRight() {
    const messagesT = data?.pages.map(i => i.context.data).flat() ?? []
    const totalItem = data?.pages[0]?.context?.total ?? 0
    useEffect(() => {
-      if (echo) {
+      if (echo && user.id) {
          let chat: any = echo.join(`ci.chat.demo.${params.id}`)
             .subscribed(() => {
                chat.whisper('connected', {
@@ -52,18 +51,18 @@ export function PageChatRight() {
                })
             })
             .listen('MessagePosted', (u: IMessage) => {
-               console.log(user,u)
-               setMessages(prev => [u, ...prev])
+               if (user.id !== u.user_id) {
+                  setMessages(prev => [u, ...prev])
+               }
             })
       }
       return () => {
          setMessages([])
       }
-   }, [echo, params.id])
+   }, [echo, params.id, user.id])
    const onScrollBottom = () => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" })
    }
-
    return (
       <>
          <div className='page-right-head'>
@@ -160,7 +159,7 @@ export function PageChatRight() {
                <div className="bottom-ref bottom-ref-2" />
             </InfiniteScroll>
          </div>
-         <InputChat topic_id={params.id ?? ''} onScrollBottom={onScrollBottom} />
+         <InputChat topic_id={params.id ?? ''} onScrollBottom={onScrollBottom} setMessages={setMessages} />
       </>
    );
 }
@@ -201,21 +200,21 @@ const InputChat = (props: InputChatProps) => {
    const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
       setMessage(e.target.value)
    }
-
    const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (onScrollBottom) onScrollBottom()
-      // if (setMessages) {
-      //    setMessages(prev => [{
-      //       _id: dayjs().format('HHmmss'),
-      //       created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      //       msg: message,
-      //       topic_id: topic_id,
-      //       user: user,
-      //       user_id: user.id,
-      //       reply_id: null
-      //    }, ...prev])
-      // }
+      if (setMessages) {
+         const newMessage = {
+            _id: dayjs().format('HHmmss'),
+            created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            msg: message,
+            topic_id: topic_id,
+            user: user,
+            user_id: user.id,
+            reply_id: null
+         }
+         setMessages(prev => [newMessage, ...prev])
+      }
       setMessage('')
       mutate({ topic_id: topic_id, msg: message })
    }

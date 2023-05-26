@@ -4,6 +4,7 @@ import { FormEvent, useContext, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import apis from 'src/apis'
 import 'src/assets/login.css'
+import { echoConfig } from 'src/configs'
 import { AppContext, AppContextType } from 'src/context/AppProvider'
 import { LoginBody } from 'src/interfaces'
 
@@ -13,7 +14,7 @@ interface Error {
 }
 
 export function Login() {
-  const { subdomain, setUser } = useContext(AppContext) as AppContextType
+  const { subdomain, setUser, setEcho } = useContext(AppContext) as AppContextType
   const [error, setError] = useState<Error>({ error_email: null, error_password: null })
   const emailRef = useRef<HTMLInputElement>(null)
   const passRef = useRef<HTMLInputElement>(null)
@@ -23,6 +24,7 @@ export function Login() {
     mutationFn: (body: LoginBody) => apis.postLogin(subdomain, body),
     onSuccess: (res) => {
       setUser(res.context)
+      setEcho(echoConfig(res.context.token))
       window.sessionStorage.setItem('token', res.context.token)
       navigate('/chats')
     },
