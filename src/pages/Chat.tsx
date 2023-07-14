@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import 'src/assets/Chat.css';
 import { useMediaQuery } from 'react-responsive';
 import { useContext, useEffect } from 'react';
 import { AppContext, AppContextType } from 'src/context/AppProvider';
 import { PageChatLeft } from 'src/components';
+
 
 export function Chat() {
    const { echo, user, subdomain } = useContext(AppContext) as AppContextType
@@ -40,7 +41,6 @@ export function Chat() {
    const onNavigateManager = (url: string) => {
       window.open(`https://${subdomain}.${url}`, "_blank")
    }
-
    return (
       <div className="col-lg-12 pt-3">
          <div className='page'>
@@ -86,9 +86,12 @@ export function Chat() {
 }
 const useReplaceHome = () => {
    const navigate = useNavigate()
+   const location = useLocation()
    const { queryParams } = useContext(AppContext) as AppContextType
    useEffect(() => {
-      if (queryParams.token) { navigate('/', { replace: true }) }
+      if (queryParams.token) {
+         navigate(location.pathname, { replace: true })
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [])
    return

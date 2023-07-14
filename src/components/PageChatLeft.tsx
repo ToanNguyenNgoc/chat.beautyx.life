@@ -6,7 +6,8 @@ import { useContext } from 'react';
 import { AppContext, AppContextType } from 'src/context/AppProvider';
 import apis from 'src/apis';
 import { LoadMessage } from 'src/components';
-import { dateFromNow, onErrorImg } from 'src/utils';
+import { dateFromNow, onErrorImg, unique } from 'src/utils';
+import { ITopic } from 'src/interfaces';
 import icon from 'src/assets/icon';
 
 interface ChatLeftProps {
@@ -16,8 +17,6 @@ interface ChatLeftProps {
 
 export function PageChatLeft(props: ChatLeftProps) {
   const { subdomain } = useContext(AppContext) as AppContextType
-  const navigate = useNavigate()
-  const params = useParams()
   const { data, isLoading, fetchNextPage } = useInfiniteQuery({
     queryKey: ['TOPICS'],
     queryFn: ({ pageParam = 1 }) => apis.getTopics({
@@ -76,48 +75,7 @@ export function PageChatLeft(props: ChatLeftProps) {
             {
               topics.map(topic => (
                 <li key={topic._id} className='detail-user'>
-                  <div
-                    style={params.id === topic._id ? { backgroundColor: '#f5f5f5' } : {}}
-                    className='detail-user_item'
-                    onClick={() => navigate(
-                      `/chats/${topic._id}`,
-                      { state: topic }
-                    )}
-                  >
-                    <div className="detail-user_item-cnt">
-                      <div className="detail-user_item-cnt-avt">
-                        {
-                          topic.topic_user?.length > 1 ?
-                          <img src={icon.userGroup} alt="" />
-                            :
-                            <img
-                              src={topic.topic_user[0]?.topic_user?.avatar ?? ''}
-                              alt=""
-                              onError={onErrorImg}
-                            />
-                        }
-                        <span></span>
-                      </div>
-                      <div className="detail-user_item-cnt-right">
-                        <div className="topic-left">
-                          <span className="topic-left-name">
-                            {topic.name || topic.topic_user?.map(i => i.topic_user?.fullname)?.join(',')}
-                          </span>
-                          <div className="topic-left-msg">
-                            <span className="topic-left-msg-txt">
-                              {topic.messages[0]?.msg}
-                            </span>
-                            <span className="topic-left-msg-time">
-                              {dateFromNow(topic.updated_at)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="topic-right">
-                          <i className="fa fa-ellipsis-h" aria-hidden="true"></i>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <TopicItem topic={topic} />
                 </li>
               ))
             }
@@ -126,4 +84,56 @@ export function PageChatLeft(props: ChatLeftProps) {
       </div>
     </div>
   );
+}
+const TopicItem = ({ topic }: { topic: ITopic }) => {
+  const navigate = useNavigate()
+  const params = useParams()
+  let name = topic.name
+  if (!topic.name || topic.name === '' || (topic.name === topic.organization.name)) {
+    name = unique(topic.topic_user?.map(i => i.user?.fullname).filter(Boolean)).join(',')
+  }
+  return (
+    <div
+      style={params.id === topic._id ? { backgroundColor: '#f5f5f5' } : {}}
+      className='detail-user_item'
+      onClick={() => navigate(
+        `/chats/${topic._id}`,
+        { state: topic }
+      )}
+    >
+      <div className="detail-user_item-cnt">
+        <div className="detail-user_item-cnt-avt">
+          {
+            topic.topic_user?.length > 1 ?
+              <img src={icon.userGroup} alt="" />
+              :
+              <img
+                src={topic.topic_user[0]?.user?.avatar ?? ''}
+                alt=""
+                onError={onErrorImg}
+              />
+          }
+          <span></span>
+        </div>
+        <div className="detail-user_item-cnt-right">
+          <div className="topic-left">
+            <span className="topic-left-name">
+              {name}
+            </span>
+            <div className="topic-left-msg">
+              <span className="topic-left-msg-txt">
+                {topic.messages[0]?.msg}
+              </span>
+              <span className="topic-left-msg-time">
+                {dateFromNow(topic.updated_at)}
+              </span>
+            </div>
+          </div>
+          <div className="topic-right">
+            <i className="fa fa-ellipsis-h" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }

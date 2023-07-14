@@ -6,7 +6,7 @@
 }
 
 .login-card {
-  width: 45vw;
+  width: 35vw;
   padding: 32px 24px;
   background-color: var(--white);
   border-radius: 12px;
@@ -25,11 +25,33 @@
 .login-card_form {
   margin-top: 32px;
 }
-.form-row{
+
+.form-row {
   position: relative;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
-.form-row-error{
+
+.form-row-subdomain {
+  display: flex;
+  justify-content: space-between;
+}
+
+.domain-display {
+  padding: 0px 12px 0px 2px;
+  display: flex;
+  align-items: center;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-radius: 0px 0.25rem 0.25rem 0px;
+}
+.form-control-subdomain{
+  text-align: end;
+}
+
+.form-row-error {
   position: absolute;
   color: var(--red);
   font-size: 11px;
@@ -70,8 +92,9 @@
 .form-btn-load .spinner-rote {
   color: var(--white);
 }
+
 @media only screen and (max-width: 767px) {
-  .login-card{
+  .login-card {
     width: calc(100vw - 32px);
   }
 }

@@ -26,6 +26,13 @@ export interface ITopic {
   _id: string,
   type: string,
   organization_id: number,
+  organization:{
+    name:string;
+    subdomain:string;
+    id:string|number;
+    image:string;
+    image_url:string;
+  }
   created_by: number,
   name: string | null,
   updated_at: string,
@@ -36,7 +43,7 @@ export interface ITopic {
 export interface TopicUser {
   joined_at: string;
   topic_id: string;
-  topic_user: {
+  user: {
     avatar: string | null;
     current_platform: string | null;
     fullname: string;

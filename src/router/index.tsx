@@ -1,16 +1,13 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { PageChatRight } from 'src/components';
 import { Chat, Login } from 'src/pages/_index';
+import { ProtectedRoute } from './ProtectedRoute'
 
 const RouterConfig = () => {
   const router = createBrowserRouter([
     {
-      path: "/",
-      element: <Chat />
-    },
-    {
       path: "/chats",
-      element: <Chat />,
+      element: <ProtectedRoute><Chat /></ProtectedRoute>,
       children: [
         {
           path: ':id',
@@ -21,7 +18,11 @@ const RouterConfig = () => {
     {
       path: '/login',
       element: <Login />
-    }
+    },
+    {
+      path: "/",
+      element: <ProtectedRoute><Chat /></ProtectedRoute>,
+    },
   ]);
   return (
     <RouterProvider router={router} />

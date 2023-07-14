@@ -52,7 +52,12 @@ export function PageChatRight() {
             })
             .listen('MessagePosted', (u: IMessage) => {
                if (user.id !== u.user_id) {
-                  setMessages(prev => [u, ...prev])
+                  setMessages(prev => {
+                     if (prev.indexOf(u) === -1) {
+                        return [u, ...prev]
+                     }
+                     return prev
+                  })
                }
             })
       }
@@ -79,13 +84,13 @@ export function PageChatRight() {
                      (curTopic?.topic_user?.length ?? 0) > 1 ?
                         <img src={icon.userGroup} alt="" />
                         :
-                        <img src={curTopic?.topic_user[0]?.topic_user?.avatar ?? ''} onError={onErrorImg} alt="" />
+                        <img src={curTopic?.topic_user[0]?.user?.avatar ?? ''} onError={onErrorImg} alt="" />
                   }
                </div>
                <div>
                   <div className='head-username'>
                      <span className='head-name'>
-                        {curTopic?.name ?? curTopic?.topic_user?.map(i => i.topic_user?.fullname)?.join(',')}
+                        {curTopic?.name ?? curTopic?.topic_user?.map(i => i.user?.fullname)?.join(',')}
                      </span>
                      <div className='head-status'>
                         <span></span>
@@ -190,11 +195,6 @@ const InputChat = (props: InputChatProps) => {
       onSuccess: (result: any, variables, context) => {
          setMessage('')
          onEmitTyping(false)
-         // queryClient.setQueryData(['CHAT', topic_id], (old: any) => {
-         //    const res = { ...result, context: { data: [result.context] } }
-         //    // setMessage(initial)
-         //    return { ...old, pages: [res, ...old.pages] }
-         // })
       },
    })
    const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {

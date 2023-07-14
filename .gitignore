@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+/build
+Dockerfile
+docker-compose.yml
 /.pnp
 .pnp.js
 .env
