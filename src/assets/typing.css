@@ -1,7 +1,7 @@
 .chatBubble {
-  margin-left: 38px;
   background-color: transparent;
-  padding: 16px;
+  padding: 12px;
+  background-color: #f8f5ff;
   -webkit-border-radius: 8px;
   -webkit-border-bottom-left-radius: 2px;
   -moz-border-radius: 8px;

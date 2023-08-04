@@ -12,7 +12,7 @@ export const linkify = (text: string) => {
   const urlImgRegex = /\.(jpeg|jpg|gif|png|svg)$/;
   let element = text
   if (text.match(urlImgRegex)) {
-    return element = '<image class="msg-img" src=" ' + text + ' " alt="" />'
+    return element = '<image class="message-img" src=" ' + text + ' " alt="" />'
   }
   if (text.match(urlRegex)) {
     element = text.replace(urlRegex, function (url) {

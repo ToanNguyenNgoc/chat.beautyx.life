@@ -1,3 +1,3 @@
 export * from './format'
 export * from './error'
-export * from './useOnScreen'
+export * from './stringAvatar'

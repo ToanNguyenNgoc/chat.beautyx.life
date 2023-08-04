@@ -1,12 +1,15 @@
-import { useState, useEffect, useMemo, RefObject } from 'react'
-type Options = {
+import { useEffect, useMemo, useState } from "react";
+
+type OptionsTypes = {
+  root?: any,
   rootMargin: string,
   threshold: number,
 }
-export const useOnScreen = <T extends Element>(options: Options, targetRef: RefObject<T> | null) => {
-  const [isVisibile, setIsVisible] = useState(false);
+
+export const useElementScreen = (options: OptionsTypes, targetRef: any) => {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   const callbackFunction = (entries: any) => {
-    const [entry] = entries;
+    const [entry] = entries; //const entry = entries[0]
     setIsVisible(entry.isIntersecting);
   };
   const optionsMemo = useMemo(() => {
@@ -14,11 +17,12 @@ export const useOnScreen = <T extends Element>(options: Options, targetRef: RefO
   }, [options]);
   useEffect(() => {
     const observer = new IntersectionObserver(callbackFunction, optionsMemo);
-    const currentTarget = targetRef?.current;
+    const currentTarget = targetRef.current;
     if (currentTarget) observer.observe(currentTarget);
+
     return () => {
       if (currentTarget) observer.unobserve(currentTarget);
     };
   }, [targetRef, optionsMemo]);
-  return isVisibile;
+  return isVisible;
 };
