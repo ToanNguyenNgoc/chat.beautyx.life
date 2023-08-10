@@ -1,3 +1,6 @@
 export * from './Typing'
 export * from './XCircularProgress'
 export * from './XStyleBadge'
+export * from './AvatarTopic'
+export * from './SendManyMessage'
+export * from './MessageInput'

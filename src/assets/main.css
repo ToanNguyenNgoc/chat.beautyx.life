@@ -5,6 +5,9 @@
   height: 100%;
   padding: 12px 6px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .shortcut-list {
@@ -24,6 +27,90 @@
 .shortcut-list button i {
   color: var(--secondary);
 }
+
+.shortcut-profile-cnt {
+  cursor: pointer;
+  position: relative;
+}
+
+.profile-head {
+  margin-bottom: 10px;
+}
+
+.profile {
+  position: absolute;
+  z-index: 100;
+  width: 336px;
+  height: fit-content;
+  background-color: var(--white);
+  box-shadow: var(--box-shadow);
+  top: -280px;
+  border-radius: 8px;
+  padding: 12px;
+  display: none;
+}
+
+.profile-act {
+  display: block;
+}
+
+.profile-head_label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.profile-head_detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-head_detail-right {
+  width: calc(100% - 48px);
+}
+
+.profile-head_detail-right p:nth-child(2) {
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.profile-bottom {
+  margin-top: 12px;
+}
+
+.profile-bottom_btn {
+  display: flex;
+  align-items: center;
+  padding: 10px 8px;
+  transition: all .3s;
+  margin-bottom: 4px;
+  border-radius: 8px;
+}
+
+.profile-bottom_btn:hover {
+  transition: all .3s;
+  background-color: var(--bg-color);
+}
+
+.profile-bottom_btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 100%;
+  background-color: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.profile-bottom_btn-txt {
+  width: calc(100% - 36px);
+  font-size: 13px;
+}
+
+
 
 .chat-cnt {
   width: 100%;
@@ -82,6 +169,28 @@
 
 .topic-item {
   padding: 2px 8px;
+}
+
+.avatar-group {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.avatar-group_item:nth-child(1) {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+}
+
+.avatar-group_item:nth-child(2) {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  left: 0;
+  border: solid 1px var(--white);
+  border-radius: 100%;
 }
 
 .topic-link {
@@ -184,6 +293,47 @@
     margin: 0px;
   }
 
+  .shortcut-profile-cnt {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: var(--white);
+    z-index: 100;
+    width: 100%;
+    padding: 8px 12px;
+  }
+
+  .profile {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 75%;
+    margin-left: -75%;
+    border-radius: 0px;
+    box-shadow: none;
+    transition: all .3s;
+  }
+
+  .profile-act {
+    margin-left: 0px;
+    box-shadow: var(--box-shadow);
+    transition: all .3s;
+    padding: 8px 12px;
+  }
+
+  .profile-bottom_btn-menu {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    background-color: #F5F5F5;
+  }
+
+
   .chat-topic {
     width: 100%;
     left: 0;
@@ -192,7 +342,7 @@
 
   .chat-topic_head {
     position: fixed;
-    top: 0;
+    top: 27px;
     left: 0;
     z-index: 5;
     width: 100%;

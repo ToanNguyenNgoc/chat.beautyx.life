@@ -1,22 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Button, TextField, useMediaQuery } from '@mui/material'
+import { Avatar, Button, TextField, Tooltip, useMediaQuery } from '@mui/material'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { FC, useContext, useEffect, useRef } from 'react'
+import { ChangeEvent, FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import apis from 'src/apis'
 import 'src/assets/main.css'
-import { XCircularProgress, XStyledBadge } from 'src/components'
+import { AvatarTopic, SendManyMessage, XCircularProgress } from 'src/components'
 import { AppContext, AppContextType } from 'src/context/AppProvider'
 import { useElementScreen } from 'src/hooks'
 import { ITopic } from 'src/interfaces'
-import { dateFromNow, unique } from 'src/utils'
+import { dateFromNow, onRenderTopicName } from 'src/utils'
 
 export function Main() {
   const params = useParams()
+  const { subdomain } = useContext(AppContext) as AppContextType
   const mb = useMediaQuery('(max-width:767px)')
   let display = ['TOPIC', 'MESSAGE']
   if (mb) display = ['TOPIC']
   if (mb && params.id) display = ['MESSAGE']
+  const onNavigateManager = (path: string) => {
+    window.location.assign(`https://${subdomain}.myspa.vn/${path}`)
+  }
   return (
     <div className="main">
       {
@@ -24,19 +28,28 @@ export function Main() {
         <>
           <div className="shortcuts-cnt">
             <div className="shortcut-list">
-              <Button style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
-                <i className="fa fa-home fa-lg" aria-hidden="true"></i>
-              </Button>
-              <Button style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
-                <i className="fa fa-users fa-lg" aria-hidden="true"></i>
-              </Button>
-              <Button style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
-                <i className="fa fa-calendar fa-lg" aria-hidden="true"></i>
-              </Button>
-              <Button style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
-                <i className="fa fa-shopping-bag fa-lg" aria-hidden="true"></i>
-              </Button>
+              <Tooltip placement='left-start' title='Dashboard'>
+                <Button onClick={() => onNavigateManager('')} style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
+                  <i className="fa fa-home fa-lg" aria-hidden="true"></i>
+                </Button>
+              </Tooltip>
+              <Tooltip placement='left-start' title='Khách hàng'>
+                <Button onClick={() => onNavigateManager('ManageUser/member_list')} style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
+                  <i className="fa fa-users fa-lg" aria-hidden="true"></i>
+                </Button>
+              </Tooltip>
+              <Tooltip placement='left-start' title='Lịch hẹn'>
+                <Button onClick={() => onNavigateManager('ManageAppointment')} style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
+                  <i className="fa fa-calendar fa-lg" aria-hidden="true"></i>
+                </Button>
+              </Tooltip>
+              <Tooltip placement='left-start' title='Danh sách bán hàng'>
+                <Button onClick={() => onNavigateManager('ManageOrder/order_list')} style={{ backgroundColor: 'var(--light)' }} variant='contained' color='success' >
+                  <i className="fa fa-shopping-bag fa-lg" aria-hidden="true"></i>
+                </Button>
+              </Tooltip>
             </div>
+            <ProfileShortcut />
           </div>
           <TopicList />
         </>
@@ -50,15 +63,91 @@ export function Main() {
     </div>
   )
 }
+const ProfileShortcut: FC = () => {
+  const mb = useMediaQuery('(max-width:767px)')
+  const profileRef = useRef<HTMLDivElement>(null)
+  window.addEventListener('click', () => profileRef.current?.classList.remove('profile-act'))
+  const { user, org, logout } = useContext(AppContext) as AppContextType
+  const [openSend, setOpenSend] = useState(false)
+  return (
+    <div className="shortcut-profile-cnt">
+      <div onClick={(e) => e.stopPropagation()} ref={profileRef} className="profile">
+        <div className="profile-top">
+          {
+            mb &&
+            <div
+              className='profile-bottom_btn-menu'
+              onClick={() => profileRef.current?.classList.remove('profile-act')}
+            >
+              <i className="fa fa-chevron-left" aria-hidden="true"></i>
+            </div>
+          }
+          <div className="profile-head">
+            <label className='profile-head_label'>Doanh nghiệp</label>
+            <div className="profile-head_detail">
+              <Avatar src={org?.image_url || org?.name} alt={org?.name} />
+              <div className="profile-head_detail-right">
+                <p>{org?.name}</p>
+              </div>
+            </div>
+          </div>
+          <div className="profile-head">
+            <label className='profile-head_label'>Tài khoản</label>
+            <div className="profile-head_detail">
+              <Avatar src={user?.avatar || user?.fullname} alt={user?.fullname} />
+              <div className="profile-head_detail-right">
+                <p>{user?.fullname}</p>
+                <p>{user?.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ul className="profile-bottom">
+          <li onClick={() => setOpenSend(true)} className="profile-bottom_btn">
+            <div className="profile-bottom_btn-icon">
+              <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
+            </div>
+            <span className="profile-bottom_btn-txt">Gửi tin nhắn cho nhiều người</span>
+          </li>
+          <SendManyMessage open={openSend} onClose={() => setOpenSend(false)} />
+          {
+            !mb &&
+            <li onClick={logout} className="profile-bottom_btn">
+              <div className="profile-bottom_btn-icon">
+                <i className="fa fa-sign-out" aria-hidden="true"></i>
+              </div>
+              <span className="profile-bottom_btn-txt">Đăng xuất</span>
+            </li>
+          }
+        </ul>
+      </div>
+      <div onClick={(e) => {
+        e.stopPropagation();
+        profileRef.current?.classList.toggle('profile-act')
+      }}>
+        {
+          mb ? <div className='profile-bottom_btn-menu'><i className="fa fa-bars" aria-hidden="true"></i></div>
+            :
+            <Avatar src={user?.avatar || user?.fullname} alt={user?.fullname} />
+        }
+      </div>
+    </div>
+  )
+}
 const TopicList: FC = () => {
   const params = useParams()
   const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
-  const { data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ['TOPICS'],
+  const [search, setSearch] = useState('')
+  const onChangeSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setTimeout(() => setSearch(e.target.value), 800)
+  }, [search])
+  const { data, fetchNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['TOPICS', search],
     queryFn: ({ pageParam = 1 }) => apis.getTopics({
       p: pageParam,
       l: 15,
+      s: search,
       sort: '-updated_at',
       org: subdomain ?? ''
     }),
@@ -73,15 +162,15 @@ const TopicList: FC = () => {
         <div className="chat-topic_head-ctn">
           <span>Chats</span>
           <div className="chat-topic_head-ctn-btn">
-            <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
+            {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-bell-o" aria-hidden="true"></i>
             </Button>
             <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-video-camera" aria-hidden="true"></i>
-            </Button>
-            <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
+            </Button> */}
+            {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-            </Button>
+            </Button> */}
           </div>
         </div>
         <div className="chat-topic_head-ip">
@@ -92,45 +181,32 @@ const TopicList: FC = () => {
             placeholder='Tìm kiếm trong tin nhắn...'
             variant="filled"
             size="small"
+            onChange={onChangeSearch}
           />
         </div>
       </div>
       <div className="chat-topic_list">
         <ul className="topic-list">
           {
-            topics.map(item => {
-              let name = item.name
-              if (item.topic_user.length > 0) {
-                name = unique(item.topic_user?.map(i => i.user?.fullname).filter(Boolean)).join(',')
-              }
-              return (
-                <li key={item._id} className='topic-item'>
-                  <div onClick={() => navigate(`/chats/${item._id}`, { state: item })}
-                    className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
-                  >
-                    <div className="avatar">
-                      <XStyledBadge
-                        overlap="circular"
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                        variant="standard"
-                      >
-                        <Avatar alt="" src="" />
-                      </XStyledBadge>
-                    </div>
-                    <div className="topic-info">
-                      <span className="topic-info_name">{name}</span>
-                      <div className="topic-info_date">
-                        <span className="topic-info_date-mes">{item.messages[0]?.msg}</span>
-                        <span className="topic-info_date-time">{dateFromNow(item.updated_at)}</span>
-                      </div>
+            topics.map(item => (
+              <li key={item._id} className='topic-item'>
+                <div onClick={() => navigate(`/chats/${item._id}`, { state: item })}
+                  className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
+                >
+                  <AvatarTopic topic={item} />
+                  <div className="topic-info">
+                    <span className="topic-info_name">{onRenderTopicName(item).name}</span>
+                    <div className="topic-info_date">
+                      <span className="topic-info_date-mes">{item.messages[0]?.msg}</span>
+                      <span className="topic-info_date-time">{dateFromNow(item.updated_at)}</span>
                     </div>
                   </div>
-                </li>
-              )
-            })
+                </div>
+              </li>
+            ))
           }
         </ul>
-        {topics.length < total && <BottomTopic fetchNextPage={fetchNextPage} />}
+        {(topics.length < total || isLoading) && <BottomTopic fetchNextPage={fetchNextPage} />}
       </div>
     </div>
   )

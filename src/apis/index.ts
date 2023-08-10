@@ -5,20 +5,28 @@ import {
   ITopic,
   IUser,
   LoginBody,
+  Media,
   MessageBody,
+  Organization,
   QueryMessage,
   QueryTopic,
   Response,
+  StoreAllMessageBody,
   TopicBody
 } from "src/interfaces"
 
 
 const apis = {
-  postLogin: (org: string, body: LoginBody) => {
-    return axiosConfig.post(`auth/${org}/login`, body).then<Response<IUser>>(res => res.data)
+  postLogin: (body: LoginBody) => {
+    return axiosConfig.post(`auth/${body.subdomain}/login`,
+      { username: body.username, password: body.password })
+      .then<Response<IUser>>(res => res.data)
   },
   getProfile: () => {
     return axiosConfig.get('/users/profile').then(res => res.data)
+  },
+  getOrganization: (subdomain: string) => {
+    return axiosConfig.get(`/organizations/${subdomain}`).then<Response<Organization>>(res => res.data)
   },
   getTopics: (params?: QueryTopic) => {
     return axiosConfig
@@ -38,6 +46,18 @@ const apis = {
   postMessage: (data: MessageBody) => {
     return axiosConfig
       .post('/messages', data)
+      .then<Response<IMessage>>(res => res.data)
+  },
+  postMedia: (formData: FormData) => {
+    return axiosConfig.post('/media', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }).then<Response<Media>>(res => res.data)
+  },
+  postStoreAllMessage: (body: StoreAllMessageBody) => {
+    return axiosConfig
+      .post('/messages/storeAllTopic', body)
       .then<Response<IMessage>>(res => res.data)
   }
 }

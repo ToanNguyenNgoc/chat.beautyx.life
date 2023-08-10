@@ -2,24 +2,15 @@
 import { Avatar, Button } from "@mui/material";
 import { FC, useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "src/assets/message.css"
-import { Typing, XCircularProgress, XStyledBadge } from "src/components";
+import { AvatarTopic, MessageInput, Typing, XCircularProgress } from "src/components";
 import { AppContext, AppContextType } from "src/context/AppProvider";
-import { IMessage, ITopic, MessageBody } from "src/interfaces";
+import { IMessage, ITopic } from "src/interfaces";
 import { dateFromNow, linkify, unique } from "src/utils";
-import * as Yup from "yup"
-import { useFormik } from "formik"
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import apis from "src/apis";
 import InfiniteScroll from "react-infinite-scroll-component";
-import dayjs from "dayjs";
+import "src/assets/message.css"
 
-
-interface MessageInputProps {
-  topic_id: string;
-  onScrollBottom?: () => void;
-  setMessages?: React.Dispatch<React.SetStateAction<IMessage[]>>
-}
 
 export const Chat: FC = () => {
   const params = useParams()
@@ -88,13 +79,7 @@ export const Chat: FC = () => {
             <i className="fa fa-caret-left fa-lg" aria-hidden="true"></i>
           </Button>
           <div className="name-avatar">
-            <XStyledBadge
-              overlap="circular"
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              variant="standard"
-            >
-              <Avatar alt="" src="" />
-            </XStyledBadge>
+            {curTopic && <AvatarTopic topic={curTopic} />}
             <span className="name">{name}</span>
           </div>
         </div>
@@ -122,14 +107,15 @@ export const Chat: FC = () => {
                 <div key={index} className="message-item-cnt">
                   <div className="message-item">
                     <div className={change ? "message-item-user message-item-user-ch" : "message-item-user"}>
-                      <Avatar src={item.user?.avatar || item.user.fullname} alt="" />
+                      <Avatar src={item.user?.avatar || item.user.fullname} alt={item.user?.fullname} />
                       <span className="message-item-user_name">{item.user.fullname}</span>
                       <span className="message-item-user_time">{dateFromNow(item.created_at)}</span>
                     </div>
                     <div className={change ? "message-body message-body-ch" : "message-body"}>
-                      <div className={change ? "message-body_txt message-body_txt-ch" : "message-body_txt"}
-                        dangerouslySetInnerHTML={{ __html: linkify(item.msg) }}
-                      />
+                      <div className={change ? "message-body_txt message-body_txt-ch" : "message-body_txt"}>
+                        <div dangerouslySetInnerHTML={{ __html: linkify(item.msg || '') }} />
+                        {item.media_urls?.length > 0 && <Images media_urls={item.media_urls} />}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -139,93 +125,35 @@ export const Chat: FC = () => {
           {(isLoading || isFetchingNextPage) && <XCircularProgress label="Đang tải tin nhắn..." />}
         </InfiniteScroll>
       </div>
-      <MessageInput setMessages={setMessages} topic_id={params.id ?? ''} onScrollBottom={onScrollBottom} />
+      <MessageInput input_media_id="media_topic" setMessages={setMessages} topic_id={params.id ?? ''} onScrollBottom={onScrollBottom} />
     </div>
   )
 }
-const MessageInput: FC<MessageInputProps> = ({
-  topic_id, setMessages, onScrollBottom
-}) => {
-  const { echo, user, subdomain } = useContext(AppContext) as AppContextType
-  const onEmitTyping = (isTyping: boolean) => {
-    let chat: any = echo?.join(`ci.chat.${subdomain}.${topic_id}`)
-    chat?.whisper('typing', {
-      user: {
-        id: user.id,
-        fullname: user.fullname,
-        avatar: user.avatar,
-        isTyping: isTyping
-      }, socketId: echo?.socketId()
-    })
-  }
-  const { mutate } = useMutation({
-    mutationKey: ['CHAT', topic_id],
-    mutationFn: (body: MessageBody) => apis.postMessage(body),
-    onSuccess: (result: any, variables, context) => onEmitTyping(false),
-  })
-  let formik = useFormik({
-    initialValues: { body: '' },
-    validationSchema: Yup.object({
-      body: Yup.string().required()
-    }),
-    onSubmit: (values) => handleSubmit(values)
-  })
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
-  const resizeTextArea = () => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      if (formik.values.body.length > 0) {
-        textAreaRef.current.style.height =
-          textAreaRef.current.scrollHeight + "px";
-      }
+const Images: FC<{ media_urls?: string[] }> = ({ media_urls = [] }) => {
+  const onRenderClass = () => {
+    let className = 'message-body_images-3'
+    switch (media_urls.length) {
+      case 1:
+        className = "message-body_images"
+        break;
+      case 2:
+        className = "message-body_images-2"
+        break;
+      default:
+        break;
     }
-  };
-  useEffect(resizeTextArea, [formik.values.body]);
-  const handleSubmit = (values: any) => {
-    if (setMessages) {
-      const newMessage = {
-        _id: dayjs().format('HHmmss'),
-        created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-        msg: values.body,
-        topic_id: topic_id,
-        user: user,
-        user_id: user.id,
-        reply_id: null
-      }
-      setMessages(prev => [newMessage, ...prev])
-    }
-    mutate({ topic_id: topic_id, msg: values.body })
-    formik.resetForm()
-    if (onScrollBottom) onScrollBottom()
+    return className
   }
+
   return (
-    <div className="mess-input-cnt">
-      <div className="mess-images"></div>
-      <div className="mess-ctl">
-        <div className="mess-ctl_cnt">
-          <div>
-            <input type="file" id="media" hidden />
-            <label className="mess-ctl_cnt-btn" htmlFor="media">
-              <i className="fa fa-solid fa-image"></i>
-            </label>
+    <div className={onRenderClass()}>
+      {
+        media_urls.map(media_url => (
+          <div key={media_url} className="message-body_images-item">
+            <img src={media_url} alt="" />
           </div>
-        </div>
-        <form className="mess-ctl_form" autoComplete="off" onSubmit={formik.handleSubmit} >
-          <textarea
-            onFocus={() => onEmitTyping(true)}
-            onBlur={() => onEmitTyping(false)}
-            onKeyDown={(e) => { if (e.code === "Enter") { e.preventDefault(); formik.handleSubmit() } }}
-            ref={textAreaRef}
-            name="body"
-            value={formik.values.body}
-            onChange={formik.handleChange}
-            rows={1} placeholder="Aa"
-          />
-          <Button variant="contained" style={{ backgroundColor: 'var(--purple)' }} type='submit' >
-            <i className="fa fa-solid fa-paper-plane"></i>
-          </Button>
-        </form>
-      </div>
+        ))
+      }
     </div>
   )
 }

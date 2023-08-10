@@ -1,0 +1,117 @@
+.MuiPaper-root {
+    max-height: unset !important;
+    max-width: unset !important;
+    margin: 0px !important;
+}
+
+.message-multi {
+    width: 550px;
+    height: 90vh;
+    background-color: var(--white);
+    position: relative;
+}
+
+.message-multi_head {
+    width: 100%;
+    position: absolute;
+    z-index: 10;
+    padding: 8px 12px;
+}
+
+.message-multi_head-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.btn-back {
+    display: none;
+    background-color: #F5F5F5;
+    padding: 0px;
+    outline: none !important;
+    border: none !important;
+    width: 28px;
+    height: 28px;
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+.message-multi_head-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.message-multi_input {
+    position: absolute;
+    z-index: 10;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.message-multi_input .mess-input-cnt {
+    position: unset;
+    width: 100%;
+}
+
+.message-multi_body {
+    width: 100%;
+    padding: 0px 12px;
+    height: calc(100% - 140px);
+    top: 80px;
+    position: absolute;
+    overflow-y: scroll;
+}
+.message-multi_body-list-item,
+.multi-topic-item{
+    display: flex;
+    align-items: center;
+}
+.multi-topic-item{
+    margin-left: 4px;
+}
+.message-multi_body-list-item{
+    padding: 4px;
+    margin-bottom: 2px;
+}
+.multi-topic-item-checkbox .MuiCheckbox-root{
+    padding: 4px !important;
+}
+.multi-topic-item-checkbox .MuiCheckbox-root svg{
+    color: var(--purple)
+}
+.multi-topic-item_name{
+    margin-left: 4px;
+    font-size: 13px;
+    line-height: 15px;
+}
+@media only screen and (max-width: 767px) {
+    .message-multi{
+        width: 100%;
+        height: 100%;
+    }
+    .message-multi_head-nav{
+        padding: 6px 12px;
+        margin-bottom: 20px;
+    }
+    .message-multi_body{
+        top: 100px;
+        padding-bottom: 60px;
+    }
+    
+    .btn-back{
+        width: 40px;
+        height: 40px;
+        display: block;
+        position: absolute;
+        left: 12px;
+        top: 8px;
+    }
+    .multi-topic-item_name{
+        font-size: 11px;
+    }
+    .message-multi_input .mess-input-cnt{
+        position: fixed;
+    }
+}

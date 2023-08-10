@@ -22,16 +22,46 @@ export interface ContextData<DataArray> {
   to: number;
   total: number;
 }
+export interface Organization {
+  id: number;
+  name: string;
+  subdomain: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  min_price: number;
+  max_price: number;
+  image: string;
+  is_momo_ecommerce_enable: boolean;
+  created_at: string;
+  updated_at: string;
+  province_code: number;
+  district_code: number;
+  ward_code: number;
+  full_address: string;
+  image_url: string;
+  opening_time: any;
+  description: string;
+  content: string;
+  favorites_count: number;
+  is_favorite: boolean;
+  distance: number | undefined;
+  tags: [];
+  telephone: [];
+  organization_content?: {
+    content: string
+  }
+}
 export interface ITopic {
   _id: string,
   type: string,
   organization_id: number,
-  organization:{
-    name:string;
-    subdomain:string;
-    id:string|number;
-    image:string;
-    image_url:string;
+  organization: {
+    name: string;
+    subdomain: string;
+    id: string | number;
+    image: string;
+    image_url: string;
   }
   created_by: number,
   name: string | null,
@@ -55,12 +85,13 @@ export interface TopicUser {
 export interface IMessage {
   _id: string,
   msg: string,
+  media_urls:string[],
   user_id: number,
   topic_id: string,
   reply_id: null | string,
   updated_at?: string,
   created_at: string,
-  user:IUser,
+  user: IUser,
 }
 export interface IUser {
   id: number,
@@ -79,4 +110,9 @@ export interface IUser {
   platform: string,
   roles: string,
   permissions: string
+}
+export interface Media {
+  model_id: number;
+  original_url: string;
+  mine_type: string
 }
