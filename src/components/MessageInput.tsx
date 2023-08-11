@@ -8,8 +8,9 @@ import apis from "src/apis";
 import icon from "src/assets/icon";
 import "src/assets/message.css"
 import { AppContext, AppContextType } from "src/context/AppProvider";
-import { useMedia } from "src/hooks";
+import { useMedia, useNotification } from "src/hooks";
 import { IMessage, Media, MessageBody, StoreAllMessageBody } from "src/interfaces";
+import { Snack } from "./Snack";
 
 interface MessageInputProps {
   topic_id: string;
@@ -23,6 +24,7 @@ interface MessageInputProps {
 export const MessageInput: FC<MessageInputProps> = ({
   topic_id, setMessages, onScrollBottom, type = 'SINGLE', input_media_id, topic_ids = []
 }) => {
+  const { resultLoad, notification, onCloseNotification } = useNotification()
   const { echo, user, subdomain } = useContext(AppContext) as AppContextType
   const mb = useMediaQuery('(max-width:767px)')
   const { handlePostMedia } = useMedia()
@@ -42,10 +44,16 @@ export const MessageInput: FC<MessageInputProps> = ({
     mutationFn: (body: MessageBody) => apis.postMessage(body),
     onSuccess: (result: any, variables, context) => onEmitTyping(false),
   })
-  const { mutate: mutateAllStore, isLoading: isLoadingAllStore } = useMutation({
+  const { mutateAsync: mutateAllStore, isLoading: isLoadingAllStore } = useMutation({
     mutationKey: ['CHAT', topic_ids],
     mutationFn: (body: StoreAllMessageBody) => apis.postStoreAllMessage(body),
-    onSuccess: (result: any, variables, context) => onEmitTyping(false),
+    onSuccess: (result: any, variables, context) => {
+      onEmitTyping(false);
+      resultLoad({
+        message: 'Đã gửi tin nhắn thành công',
+        color: 'success',
+      })
+    },
   })
   let formik = useFormik({
     initialValues: { body: '', media: [] },
@@ -94,16 +102,17 @@ export const MessageInput: FC<MessageInputProps> = ({
           }
           setMessages(prev => [newMessage, ...prev])
         }
-        // console.log(values.media)
         mutate({ topic_id: topic_id, msg: values.body, media_ids: values.media.map((i: Media) => i.model_id) })
         formik.resetForm()
         if (onScrollBottom) onScrollBottom()
       }
       if (type === "MULTI") {
-        mutateAllStore({
-          msg: values.body,
-          topic_ids,
-          media_ids: values.media.map((i: Media) => i.model_id)
+        topic_ids.forEach(async (topic_id) => {
+          await mutateAllStore({
+            msg: values.body,
+            topic_ids: [topic_id],
+            media_ids: values.media.map((i: Media) => i.model_id)
+          })
         })
         formik.resetForm()
       }
@@ -111,6 +120,12 @@ export const MessageInput: FC<MessageInputProps> = ({
   }
   return (
     <div className="mess-input-cnt">
+      <Snack
+        open={notification.openAlert}
+        message={notification.message}
+        severity={notification.color}
+        onClose={onCloseNotification}
+      />
       {
         formik.values.media.length > 0 &&
         <div className="mess-images">
