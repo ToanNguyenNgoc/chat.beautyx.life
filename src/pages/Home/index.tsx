@@ -10,14 +10,17 @@ import { AppContext, AppContextType } from 'src/context/AppProvider'
 import { useElementScreen } from 'src/hooks'
 import { ITopic } from 'src/interfaces'
 import { dateFromNow, onRenderTopicName } from 'src/utils'
+import { Chat } from './components'
 
 export function Main() {
   const params = useParams()
   const { subdomain } = useContext(AppContext) as AppContextType
+  const [openTopic, setOpenTopic] = useState<ITopic>()
   const mb = useMediaQuery('(max-width:767px)')
   let display = ['TOPIC', 'MESSAGE']
   if (mb) display = ['TOPIC']
-  if (mb && params.id) display = ['MESSAGE']
+  // if (mb && params.id) display = ['MESSAGE']
+  if(mb && openTopic) display =['MESSAGE']
   const onNavigateManager = (path: string) => {
     window.location.assign(`https://${subdomain}.myspa.vn/${path}`)
   }
@@ -51,13 +54,14 @@ export function Main() {
             </div>
             <ProfileShortcut />
           </div>
-          <TopicList />
+          <TopicList setOpenTopic={setOpenTopic} />
         </>
       }
       {
         display.includes('MESSAGE') &&
         <div className="topic-chat-cnt">
-          <Outlet />
+          {/* <Outlet /> */}
+          <Chat topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />
         </div>
       }
     </div>
@@ -134,7 +138,7 @@ const ProfileShortcut: FC = () => {
     </div>
   )
 }
-const TopicList: FC = () => {
+const TopicList: FC<{setOpenTopic:React.Dispatch<React.SetStateAction<ITopic | undefined>>}> = ({setOpenTopic}) => {
   const params = useParams()
   const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
@@ -190,7 +194,9 @@ const TopicList: FC = () => {
           {
             topics.map(item => (
               <li key={item._id} className='topic-item'>
-                <div onClick={() => navigate(`/chats/${item._id}`, { state: item })}
+                <div 
+                  // onClick={() => navigate(`/chats/${item._id}`, { state: item })}
+                  onClick={() => setOpenTopic(item)}
                   className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
                 >
                   <AvatarTopic topic={item} />

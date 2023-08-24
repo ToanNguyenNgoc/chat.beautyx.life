@@ -11,12 +11,17 @@ import apis from "src/apis";
 import InfiniteScroll from "react-infinite-scroll-component";
 import "src/assets/message.css"
 
+interface ChatProp{
+  topicItem?:ITopic;
+  goBack?:() => void
+}
 
-export const Chat: FC = () => {
+export const Chat: FC<ChatProp> = ({topicItem,goBack=()=>{} }) => {
   const params = useParams()
+  const topic_id = params.id || topicItem?._id
   const location = useLocation()
   const navigate = useNavigate()
-  const curTopic: ITopic | null = location?.state
+  const curTopic: ITopic | null = location?.state || topicItem
   const { echo, user, subdomain } = useContext(AppContext) as AppContextType
   const [messages, setMessages] = useState<IMessage[]>([])
   const [isTyping, setIsTyping] = useState()
@@ -26,14 +31,14 @@ export const Chat: FC = () => {
     name = unique(curTopic?.topic_user?.map(i => i.user?.fullname).filter(Boolean)).join(',')
   }
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ['CHAT', params.id],
+    queryKey: ['CHAT', topic_id],
     queryFn: ({ pageParam = 1 }) => apis.getMessages({
       p: pageParam,
-      topic_id: params.id ?? '',
+      topic_id: topic_id ?? '',
       l: 15,
       sort: '-created_at',
     }),
-    enabled: (params.id) ? true : false,
+    enabled: (topic_id) ? true : false,
     getNextPageParam: (page: any) => page?.context?.current_page + 1
   })
   const messagesT = data?.pages.map(i => i.context.data).flat() ?? []
@@ -41,7 +46,7 @@ export const Chat: FC = () => {
   const onScrollBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   useEffect(() => {
     if (echo && user.id) {
-      let chat: any = echo.join(`ci.chat.${subdomain}.${params.id}`)
+      let chat: any = echo.join(`ci.chat.${subdomain}.${topic_id}`)
         .subscribed(() => {
           chat.whisper('connected', {
             user: {
@@ -70,12 +75,17 @@ export const Chat: FC = () => {
     return () => {
       setMessages([])
     }
-  }, [echo, params.id, user.id])
+  }, [echo, topic_id, user.id])
   return (
     <div className="message">
       <div className="mess-head">
         <div className="mess-head_left">
-          <Button onClick={() => navigate(-1)} style={{ backgroundColor: 'var(--bg-color)' }} variant="contained" >
+          <Button 
+            // onClick={() => navigate(-1)} 
+            onClick={goBack}
+            style={{ backgroundColor: 'var(--bg-color)' }} 
+            variant="contained" 
+          >
             <i className="fa fa-caret-left fa-lg" aria-hidden="true"></i>
           </Button>
           <div className="name-avatar">
@@ -125,7 +135,7 @@ export const Chat: FC = () => {
           {(isLoading || isFetchingNextPage) && <XCircularProgress label="Đang tải tin nhắn..." />}
         </InfiniteScroll>
       </div>
-      <MessageInput input_media_id="media_topic" setMessages={setMessages} topic_id={params.id ?? ''} onScrollBottom={onScrollBottom} />
+      <MessageInput input_media_id="media_topic" setMessages={setMessages} topic_id={topic_id ?? ''} onScrollBottom={onScrollBottom} />
     </div>
   )
 }
