@@ -37,7 +37,7 @@ export function Login() {
         setEcho(echoConfig(res.context.token))
         localStorage.setItem('token', res.context.token)
         localStorage.setItem('subdomain', values.subdomain)
-        navigate('/chats')
+        navigate('/ManageMessage')
       } catch (error) {
         const err = error as AxiosError
         if (err.response?.status === 404) return setErrors({ 'username': 'Email không đúng' })

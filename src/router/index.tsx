@@ -6,6 +6,16 @@ import { ProtectedRoute } from './ProtectedRoute'
 const RouterConfig = () => {
   const router = createBrowserRouter([
     {
+      path: "/ManageMessage",
+      element: <ProtectedRoute><Main /></ProtectedRoute>,
+      children: [
+        {
+          path: ':id',
+          element: <Chat />
+        }
+      ]
+    },
+    {
       path: "/chats",
       element: <ProtectedRoute><Main /></ProtectedRoute>,
       children: [
