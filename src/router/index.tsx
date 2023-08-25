@@ -16,6 +16,16 @@ const RouterConfig = () => {
       ]
     },
     {
+      path: "/dev2021/ManageMessage",
+      element: <ProtectedRoute><Main /></ProtectedRoute>,
+      children: [
+        {
+          path: ':id',
+          element: <Chat />
+        }
+      ]
+    },
+    {
       path: "/chats",
       element: <ProtectedRoute><Main /></ProtectedRoute>,
       children: [
