@@ -2,7 +2,7 @@
 import { Avatar, Button, TextField, Tooltip, useMediaQuery } from '@mui/material'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { ChangeEvent, FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Outlet, useNavigate, useParams } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import apis from 'src/apis'
 import 'src/assets/main.css'
 import { AvatarTopic, SendManyMessage, XCircularProgress } from 'src/components'
@@ -13,17 +13,24 @@ import { dateFromNow, onRenderTopicName } from 'src/utils'
 import { Chat } from './components'
 
 export function Main() {
-  const params = useParams()
+  const location = useLocation()
   const { subdomain } = useContext(AppContext) as AppContextType
   const [openTopic, setOpenTopic] = useState<ITopic>()
   const mb = useMediaQuery('(max-width:767px)')
   let display = ['TOPIC', 'MESSAGE']
   if (mb) display = ['TOPIC']
   // if (mb && params.id) display = ['MESSAGE']
-  if(mb && openTopic) display =['MESSAGE']
+  if (mb && openTopic) display = ['MESSAGE']
   const onNavigateManager = (path: string) => {
     window.location.assign(`https://${subdomain}.myspa.vn/${path}`)
   }
+  const init = sessionStorage.getItem('init_app') || '0'
+  useEffect(() => {
+    if (init === '0') {
+      sessionStorage.setItem('init_app', '1')
+      window.location.assign(location.pathname)
+    }
+  }, [])
   return (
     <div className="main">
       {
@@ -54,14 +61,14 @@ export function Main() {
             </div>
             <ProfileShortcut />
           </div>
-          <TopicList setOpenTopic={setOpenTopic} />
+          <TopicList openTopic={openTopic} setOpenTopic={setOpenTopic} />
         </>
       }
       {
         display.includes('MESSAGE') &&
         <div className="topic-chat-cnt">
           {/* <Outlet /> */}
-          <Chat topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />
+          {openTopic && <Chat topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />}
         </div>
       }
     </div>
@@ -114,7 +121,7 @@ const ProfileShortcut: FC = () => {
             <span className="profile-bottom_btn-txt">Gửi tin nhắn cho nhiều người</span>
           </li>
           <SendManyMessage open={openSend} onClose={() => setOpenSend(false)} />
-          {
+          {/* {
             !mb &&
             <li onClick={logout} className="profile-bottom_btn">
               <div className="profile-bottom_btn-icon">
@@ -122,7 +129,7 @@ const ProfileShortcut: FC = () => {
               </div>
               <span className="profile-bottom_btn-txt">Đăng xuất</span>
             </li>
-          }
+          } */}
         </ul>
       </div>
       <div onClick={(e) => {
@@ -138,7 +145,7 @@ const ProfileShortcut: FC = () => {
     </div>
   )
 }
-const TopicList: FC<{setOpenTopic:React.Dispatch<React.SetStateAction<ITopic | undefined>>}> = ({setOpenTopic}) => {
+const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.SetStateAction<ITopic | undefined>> }> = ({ openTopic, setOpenTopic }) => {
   const params = useParams()
   const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
@@ -155,7 +162,11 @@ const TopicList: FC<{setOpenTopic:React.Dispatch<React.SetStateAction<ITopic | u
       sort: '-updated_at',
       org: subdomain ?? ''
     }),
-    onSuccess: (data) => { },
+    onSuccess: (data) => {
+      if (data.pages.length > 0 && data.pages[0].context.data.length > 0) {
+        setOpenTopic(data.pages[0]?.context.data[0])
+      }
+    },
     getNextPageParam: (page: any) => page?.context?.current_page + 1
   })
   const topics: ITopic[] = data?.pages?.map(i => i.context.data).flat() ?? []
@@ -194,10 +205,11 @@ const TopicList: FC<{setOpenTopic:React.Dispatch<React.SetStateAction<ITopic | u
           {
             topics.map(item => (
               <li key={item._id} className='topic-item'>
-                <div 
+                <div
                   // onClick={() => navigate(`/chats/${item._id}`, { state: item })}
                   onClick={() => setOpenTopic(item)}
-                  className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
+                  // className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
+                  className={openTopic?._id === item._id ? 'topic-link topic-act' : 'topic-link'}
                 >
                   <AvatarTopic topic={item} />
                   <div className="topic-info">

@@ -11,6 +11,7 @@ const Pusher = require('pusher-js')
 export interface QueryParams {
   token?: string;
   subdomain?: string;
+  e?: string
 }
 export type AppContextType = {
   echo: Echo | null,

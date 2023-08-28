@@ -1,7 +1,8 @@
 import axios from "axios";
 import queryString from "query-string";
 
-export const baseURL = process.env.REACT_APP_API;
+export const ENV = queryString.parse(window.location.search) as any
+export const baseURL = Number(ENV.e) === 1 ? process.env.REACT_APP_API : process.env.REACT_APP_API_DEV;
 export const axiosConfig = axios.create({
   baseURL: baseURL,
   headers: {
