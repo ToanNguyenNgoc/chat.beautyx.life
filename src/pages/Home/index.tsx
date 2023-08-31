@@ -14,6 +14,7 @@ import { Chat } from './components'
 
 export function Main() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
   const [openTopic, setOpenTopic] = useState<ITopic>()
   const mb = useMediaQuery('(max-width:767px)')
@@ -26,10 +27,10 @@ export function Main() {
   }
   const init = sessionStorage.getItem('init_app') || '0'
   useEffect(() => {
-    if (init === '0') {
-      sessionStorage.setItem('init_app', '1')
-      window.location.assign(location.pathname)
-    }
+    // if (init === '0') {
+    sessionStorage.setItem('init_app', '1')
+    navigate(sessionStorage.getItem("ORIGIN_PATH") || '/ManageMessage')
+    // }
   }, [])
   return (
     <div className="main">

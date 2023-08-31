@@ -1,8 +1,13 @@
 import axios from "axios";
 import queryString from "query-string";
 
-export const ENV = queryString.parse(window.location.search) as any
-export const baseURL = Number(ENV.e) === 1 ? process.env.REACT_APP_API : process.env.REACT_APP_API_DEV;
+const ENV_QR = queryString.parse(window.location.search) as any
+if (ENV_QR.token && ENV_QR.e && ENV_QR.subdomain) {
+  sessionStorage.setItem('ENV', ENV_QR.e)
+  sessionStorage.setItem('ORIGIN_PATH', window.location.pathname)
+}
+export const ENV = sessionStorage.getItem('ENV') || ENV_QR.e
+export const baseURL = Number(ENV) === 1 ? process.env.REACT_APP_API : process.env.REACT_APP_API_DEV;
 export const axiosConfig = axios.create({
   baseURL: baseURL,
   headers: {
