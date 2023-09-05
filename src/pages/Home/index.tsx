@@ -149,6 +149,7 @@ const ProfileShortcut: FC = () => {
 const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.SetStateAction<ITopic | undefined>> }> = ({ openTopic, setOpenTopic }) => {
   const params = useParams()
   const navigate = useNavigate()
+  const mb = useMediaQuery('(max-width:767px)')
   const { subdomain } = useContext(AppContext) as AppContextType
   const [search, setSearch] = useState('')
   const onChangeSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -164,7 +165,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
       org: subdomain ?? ''
     }),
     onSuccess: (data) => {
-      if (data.pages.length > 0 && data.pages[0].context.data.length > 0) {
+      if (!mb && data.pages.length > 0 && data.pages[0].context.data.length > 0) {
         setOpenTopic(data.pages[0]?.context.data[0])
       }
     },

@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import dayjs from "dayjs";
 import locale from "dayjs/locale/vi";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -7,11 +8,11 @@ export const dateFromNow = (date: string) => {
   dayjs.extend(relativeTime);
   return dayjs(date).locale(locale.name).fromNow();
 };
+export const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+export const urlImgRegex = /\.(jpeg|jpg|gif|png|svg)$/;
+export const urlVideoRegex = /\.(mp4|avi|mov|flv|wmv|mkv)$/i;
 export const linkify = (text: string) => {
   // eslint-disable-next-line no-useless-escape
-  const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-  const urlImgRegex = /\.(jpeg|jpg|gif|png|svg)$/;
-  const urlVideoRegex = /\.(mp4|avi|mov|flv|wmv|mkv)$/i;
   let element = text
   if (text.split('?')[0].match(urlImgRegex)) {
     return element = '<image class="message-img" src=" ' + text + ' " alt="" />'
@@ -25,6 +26,13 @@ export const linkify = (text: string) => {
     });
   }
   return element
+}
+export const fileType = (media_url: string) => {
+  let type = 'IMAGE'
+  if (media_url.split("?")[0].match(urlVideoRegex)) {
+    type = 'VIDEO'
+  }
+  return type
 }
 export const unique = (arr: any[]) => {
   const result: any[] = []

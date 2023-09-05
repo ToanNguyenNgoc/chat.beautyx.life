@@ -73,7 +73,15 @@ export const MessageInput: FC<MessageInputProps> = ({
     handlePostMedia({
       e,
       callBack: (data) => formik.setFieldValue('media', [...oldMedia, ...data]),
-      // resetOriginalUrl:true
+      resetOriginalUrl: true,
+      onError: () => resultLoad({
+        message: 'Có lỗi xảy ra trong quá trình upload hình/video',
+        color: 'error'
+      }),
+      onWaring: () => resultLoad({
+        message: 'Dung lượng upload tối đa 10MB',
+        color: 'warning'
+      }),
     })
   }
   const resizeTextArea = () => {

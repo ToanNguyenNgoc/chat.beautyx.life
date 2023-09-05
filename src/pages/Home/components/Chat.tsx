@@ -5,18 +5,18 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AvatarTopic, MessageInput, Typing, XCircularProgress } from "src/components";
 import { AppContext, AppContextType } from "src/context/AppProvider";
 import { IMessage, ITopic } from "src/interfaces";
-import { dateFromNow, linkify, unique } from "src/utils";
+import { dateFromNow, fileType, linkify, unique } from "src/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import apis from "src/apis";
 import InfiniteScroll from "react-infinite-scroll-component";
 import "src/assets/message.css"
 
-interface ChatProp{
-  topicItem?:ITopic;
-  goBack?:() => void
+interface ChatProp {
+  topicItem?: ITopic;
+  goBack?: () => void
 }
 
-export const Chat: FC<ChatProp> = ({topicItem,goBack=()=>{} }) => {
+export const Chat: FC<ChatProp> = ({ topicItem, goBack = () => { } }) => {
   const params = useParams()
   const topic_id = params.id || topicItem?._id
   const location = useLocation()
@@ -80,11 +80,11 @@ export const Chat: FC<ChatProp> = ({topicItem,goBack=()=>{} }) => {
     <div className="message">
       <div className="mess-head">
         <div className="mess-head_left">
-          <Button 
+          <Button
             // onClick={() => navigate(-1)} 
             onClick={goBack}
-            style={{ backgroundColor: 'var(--bg-color)' }} 
-            variant="contained" 
+            style={{ backgroundColor: 'var(--bg-color)' }}
+            variant="contained"
           >
             <i className="fa fa-caret-left fa-lg" aria-hidden="true"></i>
           </Button>
@@ -160,7 +160,18 @@ const Images: FC<{ media_urls?: string[] }> = ({ media_urls = [] }) => {
       {
         media_urls.map(media_url => (
           <div key={media_url} className="message-body_images-item">
-            <img src={media_url} alt="" />
+            {
+              fileType(media_url) === "IMAGE" ?
+                <img src={media_url} alt="" />
+                :
+                <video
+                  controls
+                  webkit-playsinline="webkit-playsinline"
+                  playsInline
+                >
+                  <source src={`${media_url}#t=0.1`} />
+                </video>
+            }
           </div>
         ))
       }
