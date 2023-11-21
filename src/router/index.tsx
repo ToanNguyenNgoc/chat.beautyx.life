@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Chat } from 'src/pages/Home/components';
-import { Main, Login } from 'src/pages/_index';
+import { Main, Login, ManageComment } from 'src/pages/_index';
 import { ProtectedRoute } from './ProtectedRoute'
 
 const RouterConfig = () => {
@@ -24,6 +24,14 @@ const RouterConfig = () => {
           element: <Chat />
         }
       ]
+    },
+    {
+      path:'/ManageComment',
+      element:<ProtectedRoute><ManageComment/></ProtectedRoute>
+    },
+    {
+      path:'/dev2021/ManageComment',
+      element:<ProtectedRoute><ManageComment/></ProtectedRoute>
     },
     {
       path: "/chats",
