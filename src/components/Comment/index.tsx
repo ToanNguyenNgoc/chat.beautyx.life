@@ -1,28 +1,20 @@
-import {
-  ChangeEvent,
-  FC,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { Link, useLocation } from "react-router-dom";
-import apis from "src/apis";
-import { XButton, XButtonFile } from "src/components";
-import { Media, usePostMedia } from "src/hooks/usePostMedia";
-import { BodyComment, IComment } from "src/interfaces";
-import style from "./style.module.css";
-import CommentParItem from "./CommentParItem";
 import { Avatar, CircularProgress, Container } from "@mui/material";
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import apis from "src/apis";
 import icon from "src/assets/icon";
+import { XButton, XButtonFile } from "src/components";
+import { Media, usePostMedia } from "src/hooks/usePostMedia";
+import { BodyComment, IComment } from "src/interfaces";
 import { clst } from "src/utils";
 import { formatLinkDetail } from "src/utils/formatLinkDetail";
-
+import CommentParItem from "./CommentParItem";
+import style from "./style.module.css";
 export interface CommentProps {
   commentable_type: any;
   commentable_id?: number;
@@ -60,7 +52,7 @@ export const Comment = ({
   const client = useQueryClient();
   const QR_KEY = ["COMMENT", commentable_type, commentable_id, org_id, all];
 
-  const { data } = useInfiniteQuery({
+  const { data, isLoading: isLoadingComment } = useInfiniteQuery({
     queryKey: QR_KEY,
     queryFn: ({ pageParam = 1 }) =>
       apis.getAllComment({
@@ -113,7 +105,7 @@ export const Comment = ({
       },
     });
   };
-  const comments = data?.pages.map((i:any) => i.context.data).flat() || [];
+  const comments = data?.pages.map((i: any) => i.context.data).flat() || [];
 
   const onRemoveMedia = (model_id: number) => {
     setValue((prev) => {
@@ -124,94 +116,121 @@ export const Comment = ({
     });
   };
   return (
-    <Container>
-      <div ref={cntRef} className={clst([style.container_right, classNameCnt])}>
-        <div className={classNameInputCnt}>
-          {!hiddenInput && (
-            <div className={style.input_cnt}>
-              <div className={style.input_avatar}>
-                <Avatar src={user?.avatar} alt={user?.fullname} />
-              </div>
-              <div className={style.input}>
-                <div className={style.input_body}>
-                  <Textarea
-                    onKeyDown={handlePostCmt}
-                    text={value?.body}
-                    onChange={(e) =>
-                      setValue((prev) => {
-                        return { ...prev, body: e.target.value };
-                      })
-                    }
-                  />
-                  <div className={style.input_btn}>
-                    <XButtonFile
-                      onChange={onChangeMedia}
-                      multiple
-                      iconSize={18}
-                      icon={icon.addFileWhite}
+    <>
+      {isLoadingComment === false && (
+        <div ref={cntRef} className={clst([style.container, classNameCnt])}>
+          <div className={classNameInputCnt}>
+            {!hiddenInput && (
+              <div className={style.input_cnt}>
+                <div className={style.input_avatar}>
+                  <Avatar src={user?.avatar} alt={user?.fullname} />
+                </div>
+                <div className={style.input}>
+                  <div className={style.input_body}>
+                    <Textarea
+                      onKeyDown={handlePostCmt}
+                      text={value?.body}
+                      onChange={(e) =>
+                        setValue((prev) => {
+                          return { ...prev, body: e.target.value };
+                        })
+                      }
                     />
-                    <XButton
-                      onClick={handlePostCmt}
-                      loading={isLoading}
-                      iconSize={18}
-                      icon={icon.planPaperWhite}
-                    />
+                    <div className={style.input_btn}>
+                      <XButtonFile
+                        onChange={onChangeMedia}
+                        multiple
+                        iconSize={18}
+                        icon={icon.addFileWhite}
+                      />
+                      <XButton
+                        onClick={handlePostCmt}
+                        loading={isLoading}
+                        iconSize={18}
+                        icon={icon.planPaperWhite}
+                      />
+                    </div>
+                  </div>
+                  <div className={style.input_image}>
+                    <div className={style.media_cnt}>
+                      {value?.media_ids?.map((media) => (
+                        <div key={media.model_id} className={style.media}>
+                          <img src={media.original_url} alt="" />
+                          {media.model_id > 0 ? (
+                            <XButton
+                              onClick={() => onRemoveMedia(media.model_id)}
+                              className={style.media_rm}
+                              icon={icon.closeCircle}
+                              iconSize={18}
+                            />
+                          ) : (
+                            <div className={style.media_load}>
+                              <CircularProgress size={32} />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className={style.input_image}>
-                  <div className={style.media_cnt}>
-                    {value?.media_ids?.map((media) => (
-                      <div key={media.model_id} className={style.media}>
-                        <img src={media.original_url} alt="" />
-                        {media.model_id > 0 ? (
-                          <XButton
-                            onClick={() => onRemoveMedia(media.model_id)}
-                            className={style.media_rm}
-                            icon={icon.closeCircle}
-                            iconSize={18}
-                          />
-                        ) : (
-                          <div className={style.media_load}>
-                            <CircularProgress size={32} />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
+            )}
+          </div>
+          {comments.length > 0 ? (
+            <div className={style.body}>
+              <ul className={style.cmt_list}>
+                {comments.map((item: IComment, index: number) => (
+                  <li key={index} className={style.cmt_list_li}>
+                    <CommentParItem
+                      layout={layout}
+                      comment={item}
+                      org_id={org_id}
+                      USER_PAR_NAME={item.user?.fullname}
+                      all={all}
+                      user={user}
+                    />
+                  </li>
+                ))}
+                {commentsMixed.map((item: IComment, index: number) => (
+                  <li key={index} className={style.cmt_list_li}>
+                    <CommentParItem
+                      layout={layout}
+                      comment={item}
+                      USER_PAR_NAME={item.user?.fullname}
+                      mixed
+                      user={user}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+              <div className={style.empty_comment}>
+                <div className={style.empty_comment_img}>
+                  <img src={icon.empty} alt="" />
+                </div>
+                <span>Chưa có bình luận nào!</span>
             </div>
           )}
         </div>
-        <div className={style.body}>
-          <ul className={style.cmt_list}>
-            {comments.map((item: IComment, index: number) => (
-              <li key={index} className={style.cmt_list_li}>
-                <CommentParItem
-                  layout={layout}
-                  comment={item}
-                  org_id={org_id}
-                  USER_PAR_NAME={item.user?.fullname}
-                  all={all}
-                  user={user}
-                />
-              </li>
-            ))}
-            {commentsMixed.map((item: IComment, index: number) => (
-              <li key={index} className={style.cmt_list_li}>
-                <CommentParItem
-                  layout={layout}
-                  comment={item}
-                  USER_PAR_NAME={item.user?.fullname}
-                  mixed
-                  user={user}
-                />
-              </li>
-            ))}
-          </ul>
+      )}
+
+      {isLoadingComment && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: "24px",
+            marginTop: "14px",
+          }}
+        >
+          <p style={{ fontWeight: "bold" }}>Đang tải bình luận ...</p>
+          <CircularProgress size="25px" color="primary" />
         </div>
-      </div>
-    </Container>
+      )}
+    </>
   );
 };
 

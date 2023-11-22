@@ -11,8 +11,10 @@ import addFileWhite from "./add-file-white.svg";
 import star from "./star.svg";
 import starFill from "./star_fill.svg";
 import checkFlowGreen from "./checkFlowGreen.svg";
+import empty from "./empty.svg";
 
 const icon = {
+  empty,
   starFill,
   user,
   userFlat,
