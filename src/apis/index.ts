@@ -1,6 +1,8 @@
 import { axiosConfig } from "src/configs"
 import {
+  BodyComment,
   ContextData,
+  IComment,
   IMessage,
   ITopic,
   IUser,
@@ -8,12 +10,14 @@ import {
   Media,
   MessageBody,
   Organization,
+  ParamComment,
   QueryMessage,
   QueryTopic,
   Response,
   StoreAllMessageBody,
   TopicBody
 } from "src/interfaces"
+import { identity, pickBy } from "lodash";
 
 
 const apis = {
@@ -59,6 +63,26 @@ const apis = {
     return axiosConfig
       .post('/messages/storeAllTopic', body)
       .then<Response<IMessage>>(res => res.data)
+  },
+  getAllComment: (qr: ParamComment) => {
+    return axiosConfig
+      .get("/comments", {
+        params: pickBy(
+          {
+            ...qr,
+            include: "rate|children|children.media",
+            append: "media_url",
+            sort: "-created_at",
+          },
+          identity
+        ),
+      })
+      .then<Response<IComment[]>>((res) => res.data);
+  },
+  createComment : (body: BodyComment) => {
+      return axiosConfig
+        .post("/comments", pickBy(body, identity))
+        .then<Response<IComment>>((res) => res.data);
   }
 }
 export default apis

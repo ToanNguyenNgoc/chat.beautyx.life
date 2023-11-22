@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     "src/index.js"
-  ],
+, "src/constants/icon.js"  ],
   "exclude": [
     "node_modules"
   ]
