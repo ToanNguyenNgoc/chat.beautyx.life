@@ -1,20 +1,12 @@
-import { FC, useContext, useEffect, useState } from "react";
-import { AppContext, AppContextType } from "src/context/AppProvider";
-import { Comment } from "src/components/Comment/index";
-import style from "./style.module.css";
 import { Container } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { FC, useContext, useState } from "react";
+import { Comment } from "src/components/Comment/index";
+import { AppContext, AppContextType } from "src/context/AppProvider";
+import style from "./style.module.css";
 
 export const ManageComment: FC = () => {
   const { org, user } = useContext(AppContext) as AppContextType;
   const [check, setCheck] = useState<boolean>(true);
-  const location = useLocation();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (location.search && user) {
-      navigate("/ManageComment");
-    }
-  }, [location, navigate, user]);
 
   return (
     <div className={style.comment_page}>

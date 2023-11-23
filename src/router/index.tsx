@@ -1,7 +1,7 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Login, Main, ManageComment } from 'src/pages/_index';
 import { Chat } from 'src/pages/Home/components';
-import { Main, Login, ManageComment } from 'src/pages/_index';
-import { ProtectedRoute } from './ProtectedRoute'
+import { ProtectedRoute } from './ProtectedRoute';
 
 const RouterConfig = () => {
   const router = createBrowserRouter([
