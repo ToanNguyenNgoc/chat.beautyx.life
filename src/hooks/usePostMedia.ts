@@ -17,7 +17,6 @@ type PostType = {
 export function usePostMedia() {
   const [medias, setMedias] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  console.log(isLoading);
   const handlePostMedia = async ({ e, callBack, onError }: PostType) => {
     if (e.target.files) {
       setIsLoading(true);

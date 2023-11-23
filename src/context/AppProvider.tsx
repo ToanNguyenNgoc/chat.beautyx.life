@@ -33,7 +33,8 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const [org, setOrg] = useState<Organization>()
   const [loadUser, setLoadUser] = useState(true)
   const token = queryParams.token || localStorage.getItem('token')
-  const subdomain = queryParams.subdomain || localStorage.getItem('subdomain') || ''
+  const subdomain = queryParams.subdomain || localStorage.getItem
+    ('subdomain') || ''
   const getUser = async () => {
     try {
       const response = await apis.getProfile()
@@ -43,22 +44,24 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   }
   useEffect(() => {
     if (subdomain) {
-      localStorage.setItem('subdomain', subdomain)
-      apis.getOrganization(subdomain).then(res => {
-        setOrg(res.context);
-        document.title = `${res.context.name} messenger`
-      }).catch(err => console.log(err))
+      localStorage.setItem("subdomain", subdomain);
+      apis
+        .getOrganization(subdomain)
+        .then((res) => {
+          setOrg(res.context);
+          if (window.location.href.includes("?token")) window.location.replace("/ManageComment");
+          document.title = `${res.context.name} messenger`;
+        })
+        .catch((err) => console.log(err));
     }
     if (token && subdomain) {
-      getUser()
-      setEcho(echoConfig(token))
-      localStorage.setItem('token', token)
+      getUser();
+      setEcho(echoConfig(token));
+      localStorage.setItem("token", token);
+    } else {
+      echoConfig().disconnect();
     }
-    else {
-      echoConfig().disconnect()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subdomain])
+  }, [subdomain, token]);
   const logout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('subdomain')
