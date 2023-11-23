@@ -49,7 +49,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
         .getOrganization(subdomain)
         .then((res) => {
           setOrg(res.context);
-          if (window.location.href.includes("?token")) window.location.replace("/ManageComment");
+          if (window.location.href.includes("?token")) window.location.replace(window.location.pathname);
           document.title = `${res.context.name} messenger`;
         })
         .catch((err) => console.log(err));
