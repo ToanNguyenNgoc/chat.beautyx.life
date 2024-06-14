@@ -2,6 +2,8 @@ export interface LoginBody {
   subdomain: string;
   username: string;
   password: string;
+  code?:string;
+  verification_id?:string
 }
 
 export interface TopicBody {

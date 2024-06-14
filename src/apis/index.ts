@@ -23,7 +23,7 @@ import { identity, pickBy } from "lodash";
 const apis = {
   postLogin: (body: LoginBody) => {
     return axiosConfig.post(`auth/${body.subdomain}/login`,
-      { username: body.username, password: body.password })
+      { username: body.username, password: body.password, code:'_', verification_id:'_' })
       .then<Response<IUser>>(res => res.data)
   },
   getProfile: () => {
