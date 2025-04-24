@@ -13,7 +13,7 @@ const Events = {
 }
 
 export type DoTypingType = { typing: boolean, topic_id: string }
-export type TypingType = { topic: string, typing: boolean, user: any }
+export type TypingType = { topic_id: string, typing: boolean, user: any }
 
 export function useSocketService() {
   const { user } = useContext(AppContext) as AppContextType;

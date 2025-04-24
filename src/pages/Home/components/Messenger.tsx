@@ -33,9 +33,6 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
 
   const { topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping } = useSocketService();
   useEffect(() => {
-    setMessages([])
-  }, [topic_id])
-  useEffect(() => {
     const onListener = async () => {
       await connect();
       onListenerMessage((msg: IMessage) => {
@@ -44,7 +41,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
         }
       });
       onListenerTyping((data: TypingType) => {
-        if (data.topic === topic_id && data?.user && data.user.id !== user.id) {
+        if (data.topic_id === topic_id && data?.user && data.user.id !== user.id) {
           setIsTyping(data.typing)
         }
       })
@@ -52,7 +49,10 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
     if (user && topic_ids.length > 0) {
       onListener()
     }
-  }, [user, topic_ids.length])
+    return ()=>{
+      setMessages([]);
+    }
+  }, [user, topic_ids.length, topic_id])
 
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
