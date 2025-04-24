@@ -2,35 +2,31 @@
 import { Avatar, Button, TextField, Tooltip, useMediaQuery } from '@mui/material'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { ChangeEvent, FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import apis from 'src/apis'
 import 'src/assets/main.css'
 import { AvatarTopic, SendManyMessage, XCircularProgress } from 'src/components'
 import { AppContext, AppContextType } from 'src/context/AppProvider'
-import { useElementScreen } from 'src/hooks'
+import { useElementScreen, useSocketService } from 'src/hooks'
 import { ITopic } from 'src/interfaces'
 import { dateFromNow, onRenderTopicName } from 'src/utils'
-import { Chat } from './components'
+import { Messenger } from './components'
 
 export function Main() {
-  const location = useLocation()
   const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
+  useSocketService();
   const [openTopic, setOpenTopic] = useState<ITopic>()
   const mb = useMediaQuery('(max-width:767px)')
   let display = ['TOPIC', 'MESSAGE']
   if (mb) display = ['TOPIC']
-  // if (mb && params.id) display = ['MESSAGE']
   if (mb && openTopic) display = ['MESSAGE']
   const onNavigateManager = (path: string) => {
     window.location.assign(`https://${subdomain}.myspa.vn/${path}`)
   }
-  const init = sessionStorage.getItem('init_app') || '0'
   useEffect(() => {
-    // if (init === '0') {
     sessionStorage.setItem('init_app', '1')
     navigate(sessionStorage.getItem("ORIGIN_PATH") || '/ManageMessage')
-    // }
   }, [])
   return (
     <div className="main">
@@ -69,7 +65,7 @@ export function Main() {
         display.includes('MESSAGE') &&
         <div className="topic-chat-cnt">
           {/* <Outlet /> */}
-          {openTopic && <Chat topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />}
+          {openTopic && <Messenger topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />}
         </div>
       }
     </div>

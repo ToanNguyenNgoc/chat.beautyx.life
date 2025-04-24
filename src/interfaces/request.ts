@@ -14,8 +14,9 @@ export interface TopicBody {
 export interface MessageBody {
   msg: string;
   topic_id: string;
-  reply_id?: string;
+  reply_id?: string|null;
   media_ids?: number[];
+  media_urls?:string[];
 }
 export interface StoreAllMessageBody {
   msg: string;

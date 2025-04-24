@@ -8,7 +8,7 @@ import apis from "src/apis";
 import icon from "src/assets/icon";
 import "src/assets/message.css"
 import { AppContext, AppContextType } from "src/context/AppProvider";
-import { useMedia, useNotification } from "src/hooks";
+import { DoTypingType, useMedia, useNotification } from "src/hooks";
 import { IMessage, Media, MessageBody, StoreAllMessageBody } from "src/interfaces";
 import { Snack } from "./Snack";
 
@@ -18,37 +18,35 @@ interface MessageInputProps {
   type?: 'SINGLE' | 'MULTI';
   input_media_id: string;
   onScrollBottom?: () => void;
-  setMessages?: React.Dispatch<React.SetStateAction<IMessage[]>>
+  setMessages?: React.Dispatch<React.SetStateAction<IMessage[]>>,
+  doMessage?: (msgBody: MessageBody) => void;
+  doTyping?: (typingBody: DoTypingType) => void;
 }
 
 export const MessageInput: FC<MessageInputProps> = ({
-  topic_id, setMessages, onScrollBottom, type = 'SINGLE', input_media_id, topic_ids = []
+  topic_id,
+  setMessages,
+  onScrollBottom,
+  type = 'SINGLE',
+  input_media_id,
+  topic_ids = [],
+  doMessage = () => null,
+  doTyping = () => null,
 }) => {
   const { resultLoad, notification, onCloseNotification } = useNotification()
-  const { echo, user, subdomain } = useContext(AppContext) as AppContextType
+  const { user } = useContext(AppContext) as AppContextType
   const mb = useMediaQuery('(max-width:767px)')
   const { handlePostMedia } = useMedia()
-  const onEmitTyping = (isTyping: boolean) => {
-    let chat: any = echo?.join(`ci.chat.${subdomain}.${topic_id}`)
-    chat?.whisper('typing', {
-      user: {
-        id: user.id,
-        fullname: user.fullname,
-        avatar: user.avatar,
-        isTyping: isTyping
-      }, socketId: echo?.socketId()
-    })
-  }
   const { mutate } = useMutation({
     mutationKey: ['CHAT', topic_id],
     mutationFn: (body: MessageBody) => apis.postMessage(body),
-    onSuccess: (result: any, variables, context) => onEmitTyping(false),
+    onSuccess: (result: any, variables, context) => doTyping({ topic_id, typing: false }),
   })
   const { mutateAsync: mutateAllStore, isLoading: isLoadingAllStore } = useMutation({
     mutationKey: ['CHAT', topic_ids],
     mutationFn: (body: StoreAllMessageBody) => apis.postStoreAllMessage(body),
     onSuccess: (result: any, variables, context) => {
-      onEmitTyping(false);
+      doTyping({ topic_id, typing: false });
       resultLoad({
         message: 'Đã gửi tin nhắn thành công',
         color: 'success',
@@ -97,17 +95,19 @@ export const MessageInput: FC<MessageInputProps> = ({
   const handleSubmit = (values: any) => {
     if (values.body.trim() !== "" || values.media.length > 0) {
       if (type === 'SINGLE') {
+        const newMessage = {
+          _id: dayjs().format('HHmmss'),
+          created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          msg: values.body,
+          topic_id: topic_id,
+          user: user,
+          user_id: user.id,
+          reply_id: null,
+          media_urls: values.media.map((i: Media) => i.original_url),
+          media_ids: values.media.map((i: Media) => i.model_id),
+        }
+        doMessage(newMessage)
         if (setMessages) {
-          const newMessage = {
-            _id: dayjs().format('HHmmss'),
-            created_at: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-            msg: values.body,
-            topic_id: topic_id,
-            user: user,
-            user_id: user.id,
-            reply_id: null,
-            media_urls: values.media.map((i: Media) => i.original_url)
-          }
           setMessages(prev => [newMessage, ...prev])
         }
         mutate({ topic_id: topic_id, msg: values.body, media_ids: values.media.map((i: Media) => i.model_id) })
@@ -197,8 +197,8 @@ export const MessageInput: FC<MessageInputProps> = ({
         </div>
         <form className="mess-ctl_form" autoComplete="off" onSubmit={formik.handleSubmit} >
           <textarea
-            onFocus={() => onEmitTyping(true)}
-            onBlur={() => onEmitTyping(false)}
+            onFocus={() => doTyping({ topic_id, typing: true })}
+            onBlur={() => doTyping({ topic_id, typing: false })}
             onKeyDown={(e) => { if (e.code === "Enter") { e.preventDefault(); formik.handleSubmit() } }}
             ref={textAreaRef}
             name="body"
