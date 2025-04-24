@@ -39,10 +39,12 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
     const onListener = async () => {
       await connect();
       onListenerMessage((msg: IMessage) => {
-        setMessages(prev => [msg, ...prev])
+        if(msg.topic_id === topic_id){
+          setMessages(prev => [msg, ...prev])
+        }
       });
       onListenerTyping((data: TypingType) => {
-        if (data?.user && data.user.id !== user.id) {
+        if (data.topic === topic_id && data?.user && data.user.id !== user.id) {
           setIsTyping(data.typing)
         }
       })
