@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef } from "react"
 import { AppContext, AppContextType } from "src/context/AppProvider"
 import { io, Socket } from "socket.io-client";
 import { useGetAllTopic } from "./useGetAllTopic";
-import { MessageBody } from "src/interfaces";
+import {  MessageBody } from "src/interfaces";
 
 const Events = {
   SUB: 'SUB',
@@ -24,7 +24,6 @@ export function useSocketService() {
     return new Promise<Socket>((resolve, reject) => {
       try {
         socketRef.current = io(String(process.env.REACT_APP_SOCKET_URL), {
-        // socketRef.current = io('ws://localhost:3004', {
           extraHeaders: {
             Authorization: `Bearer`,
           },
@@ -56,11 +55,13 @@ export function useSocketService() {
 
   const onListenerMessage = (cb: (data: any) => void) => {
     if (!socketRef.current) return;
-    socketRef.current.on(Events.LISTENER_MSG, cb)
+    socketRef.current.on(Events.LISTENER_MSG, cb);
+    return () => socketRef.current?.off(Events.LISTENER_MSG, cb);
   }
   const onListenerTyping = (cb: (data: TypingType) => void) => {
     if (!socketRef.current) return;
-    socketRef.current.on(Events.TYPING, cb)
+    socketRef.current.on(Events.TYPING, cb);
+    return () => socketRef.current?.off(Events.TYPING, cb);
   }
   const doMessage = (data: MessageBody) => {
     if (!socketRef.current) return;

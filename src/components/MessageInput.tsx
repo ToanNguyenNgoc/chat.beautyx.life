@@ -107,6 +107,7 @@ export const MessageInput: FC<MessageInputProps> = ({
           media_ids: values.media.map((i: Media) => i.model_id),
         }
         doMessage(newMessage)
+        doTyping({ topic_id, typing: false })
         if (setMessages) {
           setMessages(prev => [newMessage, ...prev])
         }

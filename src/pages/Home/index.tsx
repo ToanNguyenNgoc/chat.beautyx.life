@@ -1,21 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Avatar, Button, TextField, Tooltip, useMediaQuery } from '@mui/material'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { ChangeEvent, FC, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { ChangeEvent, FC, Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import apis from 'src/apis'
 import 'src/assets/main.css'
 import { AvatarTopic, SendManyMessage, XCircularProgress } from 'src/components'
 import { AppContext, AppContextType } from 'src/context/AppProvider'
 import { useElementScreen, useSocketService } from 'src/hooks'
-import { ITopic } from 'src/interfaces'
-import { dateFromNow, onRenderTopicName } from 'src/utils'
+import { IMessage, ITopic } from 'src/interfaces'
+import { CONST, dateFromNow, onRenderTopicName } from 'src/utils'
 import { Messenger } from './components'
 
 export function Main() {
   const navigate = useNavigate()
   const { subdomain } = useContext(AppContext) as AppContextType
-  useSocketService();
   const [openTopic, setOpenTopic] = useState<ITopic>()
   const mb = useMediaQuery('(max-width:767px)')
   let display = ['TOPIC', 'MESSAGE']
@@ -64,7 +63,6 @@ export function Main() {
       {
         display.includes('MESSAGE') &&
         <div className="topic-chat-cnt">
-          {/* <Outlet /> */}
           {openTopic && <Messenger topicItem={openTopic} goBack={() => setOpenTopic(undefined)} />}
         </div>
       }
@@ -75,7 +73,7 @@ const ProfileShortcut: FC = () => {
   const mb = useMediaQuery('(max-width:767px)')
   const profileRef = useRef<HTMLDivElement>(null)
   window.addEventListener('click', () => profileRef.current?.classList.remove('profile-act'))
-  const { user, org, logout } = useContext(AppContext) as AppContextType
+  const { user, org } = useContext(AppContext) as AppContextType
   const [openSend, setOpenSend] = useState(false)
   return (
     <div className="shortcut-profile-cnt">
@@ -143,16 +141,15 @@ const ProfileShortcut: FC = () => {
   )
 }
 const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.SetStateAction<ITopic | undefined>> }> = ({ openTopic, setOpenTopic }) => {
-  const params = useParams()
-  const navigate = useNavigate()
   const mb = useMediaQuery('(max-width:767px)')
   const { subdomain } = useContext(AppContext) as AppContextType
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
+  const [skipSetOpenTopic, setSkipSetOpenTopic] = useState(false)
   const onChangeSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setTimeout(() => setSearch(e.target.value), 800)
   }, [search])
-  const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['TOPICS', search],
+  const { data, fetchNextPage, isLoading, refetch: refetchTopics } = useInfiniteQuery({
+    queryKey: [CONST.query_key.topics, search],
     queryFn: ({ pageParam = 1 }) => apis.getTopics({
       p: pageParam,
       l: 15,
@@ -161,70 +158,78 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
       org: subdomain ?? ''
     }),
     onSuccess: (data) => {
-      if (!mb && data.pages.length > 0 && data.pages[0].context.data.length > 0) {
+      if (!skipSetOpenTopic && !mb && data.pages.length > 0 && data.pages[0].context.data.length > 0) {
         setOpenTopic(data.pages[0]?.context.data[0])
       }
     },
     getNextPageParam: (page: any) => page?.context?.current_page + 1
   })
   const topics: ITopic[] = data?.pages?.map(i => i.context.data).flat() ?? []
-  const total = data?.pages[0]?.context?.total || 1
+  const total = data?.pages[0]?.context?.total || 1;
   return (
-    <div className="chat-topic">
-      <div className="chat-topic_head">
-        <div className="chat-topic_head-ctn">
-          <span>Chats</span>
-          <div className="chat-topic_head-ctn-btn">
-            {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
+    <Fragment>
+      <InstanceSocket
+        onListenerMsg={() => {
+          setSkipSetOpenTopic(true);
+          refetchTopics();
+        }}
+      />
+      <div className="chat-topic">
+        <div className="chat-topic_head">
+          <div className="chat-topic_head-ctn">
+            <span>Chats</span>
+            <div className="chat-topic_head-ctn-btn">
+              {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-bell-o" aria-hidden="true"></i>
             </Button>
             <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-video-camera" aria-hidden="true"></i>
             </Button> */}
-            {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
+              {/* <Button style={{ backgroundColor: '#dfdfdf' }} variant='contained' color='success' >
               <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
             </Button> */}
+            </div>
+          </div>
+          <div className="chat-topic_head-ip">
+            <TextField
+              color='success'
+              hiddenLabel fullWidth
+              id="filled-hidden-label-small"
+              placeholder='Tìm kiếm trong tin nhắn...'
+              variant="filled"
+              size="small"
+              onChange={onChangeSearch}
+            />
           </div>
         </div>
-        <div className="chat-topic_head-ip">
-          <TextField
-            color='success'
-            hiddenLabel fullWidth
-            id="filled-hidden-label-small"
-            placeholder='Tìm kiếm trong tin nhắn...'
-            variant="filled"
-            size="small"
-            onChange={onChangeSearch}
-          />
-        </div>
-      </div>
-      <div className="chat-topic_list">
-        <ul className="topic-list">
-          {
-            topics.map(item => (
-              <li key={item._id} className='topic-item'>
-                <div
-                  // onClick={() => navigate(`/chats/${item._id}`, { state: item })}
-                  onClick={() => setOpenTopic(item)}
-                  // className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
-                  className={openTopic?._id === item._id ? 'topic-link topic-act' : 'topic-link'}
-                >
-                  <AvatarTopic topic={item} />
-                  <div className="topic-info">
-                    <span className="topic-info_name">{onRenderTopicName(item).name}</span>
-                    <div className="topic-info_date">
-                      <span className="topic-info_date-mes">{item.messages[0]?.msg}</span>
-                      <span className="topic-info_date-time">{dateFromNow(item.updated_at)}</span>
+        <div className="chat-topic_list">
+          <ul className="topic-list">
+            {
+              topics.map(item => (
+                <li key={item._id} className='topic-item'>
+                  <div
+                    // onClick={() => navigate(`/chats/${item._id}`, { state: item })}
+                    onClick={() => setOpenTopic(item)}
+                    // className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
+                    className={openTopic?._id === item._id ? 'topic-link topic-act' : 'topic-link'}
+                  >
+                    <AvatarTopic topic={item} />
+                    <div className="topic-info">
+                      <span className="topic-info_name">{onRenderTopicName(item).name}</span>
+                      <div className="topic-info_date">
+                        <span className="topic-info_date-mes">{item.messages[0]?.msg}</span>
+                        <span className="topic-info_date-time">{dateFromNow(item.updated_at)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            ))
-          }
-        </ul>
-        {(topics.length < total || isLoading) && <BottomTopic fetchNextPage={fetchNextPage} />}
+                </li>
+              ))
+            }
+          </ul>
+          {(topics.length < total || isLoading) && <BottomTopic fetchNextPage={fetchNextPage} />}
+        </div>
       </div>
-    </div>
+    </Fragment>
   )
 }
 export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage }) => {
@@ -242,4 +247,26 @@ export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage 
       <XCircularProgress label='Đang tải đoạn chat...' />
     </div>
   )
+}
+
+export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = ({ onListenerMsg }) => {
+  const { user } = useContext(AppContext) as AppContextType
+  const { topic_ids, connect, onListenerMessage } = useSocketService();
+  useEffect(() => {
+    let unsubscribeMessage: (() => void) | undefined;
+    const onListener = async () => {
+      await connect();
+      unsubscribeMessage = onListenerMessage((msg) => {
+        console.log(msg);
+        onListenerMsg?.(msg);
+      });
+    };
+    if (user && topic_ids?.length > 0) {
+      onListener();
+    }
+    return () => {
+      unsubscribeMessage?.();
+    };
+  }, [user, topic_ids?.length]);
+  return null;
 }

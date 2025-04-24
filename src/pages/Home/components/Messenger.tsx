@@ -32,28 +32,37 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
   }
 
   const { topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping } = useSocketService();
+
   useEffect(() => {
+    let unsubscribeMessage: (() => void) | undefined;
+    let unsubscribeTyping: (() => void) | undefined;
+
     const onListener = async () => {
       await connect();
-      onListenerMessage((msg: IMessage) => {
-        if(msg.topic_id === topic_id){
-          setMessages(prev => [msg, ...prev])
+
+      unsubscribeMessage = onListenerMessage((msg: IMessage) => {
+        if (msg.topic_id === topic_id) {
+          setMessages(prev => [msg, ...prev]);
         }
       });
-      onListenerTyping((data: TypingType) => {
-        if (data.topic_id === topic_id && data?.user && data.user.id !== user.id) {
-          setIsTyping(data.typing)
-        }
-      })
-    }
-    if (user && topic_ids.length > 0) {
-      onListener()
-    }
-    return ()=>{
-      setMessages([]);
-    }
-  }, [user, topic_ids.length, topic_id])
 
+      unsubscribeTyping = onListenerTyping((data: TypingType) => {
+        if (data.topic_id === topic_id && data?.user?.id !== user?.id) {
+          setIsTyping(data.typing);
+        }
+      });
+    };
+
+    if (user && topic_ids?.length > 0) {
+      onListener();
+    }
+
+    return () => {
+      setMessages([]);
+      unsubscribeMessage?.();
+      unsubscribeTyping?.();
+    };
+  }, [user, topic_ids?.length, topic_id]);
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['CHAT', topic_id],
