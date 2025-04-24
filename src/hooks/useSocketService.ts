@@ -23,8 +23,8 @@ export function useSocketService() {
     if (socketRef.current) return socketRef.current;
     return new Promise<Socket>((resolve, reject) => {
       try {
-        // socketRef.current = io('wss://api.beautyx.life', {
-        socketRef.current = io('ws://localhost:3004', {
+        socketRef.current = io(String(process.env.REACT_APP_SOCKET_URL), {
+        // socketRef.current = io('ws://localhost:3004', {
           extraHeaders: {
             Authorization: `Bearer`,
           },
