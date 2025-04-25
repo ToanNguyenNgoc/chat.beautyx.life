@@ -264,13 +264,13 @@ export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = (
         onListenerMsg?.(msg);
       });
     };
-    if (user && org?.id) {
+    if (user?.id && org?.id) {
       onListener();
     }
     return () => {
       unsubscribeMessageOrg?.();
       unsubscribeMessage?.();
     };
-  }, [user, org?.id]);
+  }, [user?.id, org?.id]);
   return null;
 }

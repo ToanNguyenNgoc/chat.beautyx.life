@@ -20,7 +20,6 @@ export const Chat: FC<ChatProp> = ({ topicItem, goBack = () => { } }) => {
   const params = useParams()
   const topic_id = params.id || topicItem?._id
   const location = useLocation()
-  const navigate = useNavigate()
   const curTopic: ITopic | null = location?.state || topicItem
   const { echo, user, subdomain } = useContext(AppContext) as AppContextType
   const [messages, setMessages] = useState<IMessage[]>([])

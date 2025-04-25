@@ -51,9 +51,9 @@ export function useSocketService() {
     });
   };
   useEffect(() => {
-    if (user && isFetched && org?.id)
+    if (user?.id && isFetched && org?.id)
       connect()
-  }, [user, isFetched, topic_ids.length, org])
+  }, [user?.id, isFetched, topic_ids.length, org])
 
 
   const onListenerMessage = (cb: (data: any) => void) => {

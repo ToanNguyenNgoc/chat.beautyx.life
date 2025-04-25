@@ -53,7 +53,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       });
     };
 
-    if (user && topic_id) {
+    if (user?.id && topic_id) {
       onListener();
     }
 
@@ -62,7 +62,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       unsubscribeMessage?.();
       unsubscribeTyping?.();
     };
-  }, [user, topic_ids.length, topic_id]);
+  }, [user?.id, topic_ids.length, topic_id]);
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['CHAT', topic_id],
