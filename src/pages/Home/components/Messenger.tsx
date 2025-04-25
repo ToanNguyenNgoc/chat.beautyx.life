@@ -31,7 +31,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
     name = unique(curTopic?.topic_user?.map(i => i.user?.fullname).filter(Boolean)).join(',')
   }
 
-  const { topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping } = useSocketService();
+  const { topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping, doManualSubscribeTopic } = useSocketService();
 
   useEffect(() => {
     let unsubscribeMessage: (() => void) | undefined;
@@ -39,7 +39,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
 
     const onListener = async () => {
       await connect();
-
+      doManualSubscribeTopic(String(topic_id));
       unsubscribeMessage = onListenerMessage((msg: IMessage) => {
         if (msg.topic_id === topic_id) {
           setMessages(prev => [msg, ...prev]);
@@ -53,7 +53,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       });
     };
 
-    if (user && topic_ids?.length > 0) {
+    if (user && topic_id) {
       onListener();
     }
 
@@ -62,7 +62,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       unsubscribeMessage?.();
       unsubscribeTyping?.();
     };
-  }, [user, topic_ids?.length, topic_id]);
+  }, [user, topic_ids.length, topic_id]);
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['CHAT', topic_id],

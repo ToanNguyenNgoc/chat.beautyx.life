@@ -250,23 +250,23 @@ export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage 
 }
 
 export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = ({ onListenerMsg }) => {
-  const { user } = useContext(AppContext) as AppContextType
-  const { topic_ids, connect, onListenerMessage } = useSocketService();
+  const { user, org } = useContext(AppContext) as AppContextType
+  const { connect, onListenerMessageOrg } = useSocketService();
   useEffect(() => {
     let unsubscribeMessage: (() => void) | undefined;
     const onListener = async () => {
       await connect();
-      unsubscribeMessage = onListenerMessage((msg) => {
+      unsubscribeMessage = onListenerMessageOrg((msg) => {
         console.log(msg);
         onListenerMsg?.(msg);
       });
     };
-    if (user && topic_ids?.length > 0) {
+    if (user && org?.id) {
       onListener();
     }
     return () => {
       unsubscribeMessage?.();
     };
-  }, [user, topic_ids?.length]);
+  }, [user, org?.id]);
   return null;
 }

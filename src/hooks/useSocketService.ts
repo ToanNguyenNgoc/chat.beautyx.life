@@ -3,12 +3,14 @@ import { useContext, useEffect, useRef } from "react"
 import { AppContext, AppContextType } from "src/context/AppProvider"
 import { io, Socket } from "socket.io-client";
 import { useGetAllTopic } from "./useGetAllTopic";
-import {  MessageBody } from "src/interfaces";
+import { MessageBody } from "src/interfaces";
 
 const Events = {
   SUB: 'SUB',
+  SUB_TOPIC: 'SUB_TOPIC',
   SEND_MSG: 'SEND_MSG',
   LISTENER_MSG: 'LISTENER_MSG',
+  LISTENER_MSG_ORG: 'LISTENER_MSG_ORG',
   TYPING: 'TYPING'
 }
 
@@ -16,7 +18,7 @@ export type DoTypingType = { typing: boolean, topic_id: string }
 export type TypingType = { topic_id: string, typing: boolean, user: any }
 
 export function useSocketService() {
-  const { user } = useContext(AppContext) as AppContextType;
+  const { user, org } = useContext(AppContext) as AppContextType;
   const { topic_ids, isFetched } = useGetAllTopic();
   const socketRef = useRef<Socket | null>(null);
   const connect = async () => {
@@ -24,6 +26,7 @@ export function useSocketService() {
     return new Promise<Socket>((resolve, reject) => {
       try {
         socketRef.current = io(String(process.env.REACT_APP_SOCKET_URL), {
+        // socketRef.current = io('http://localhost:3004', {
           extraHeaders: {
             Authorization: `Bearer`,
           },
@@ -33,7 +36,7 @@ export function useSocketService() {
         });
         socketRef.current.on("connect", () => {
           console.log("Connected to WebSocket");
-          socketRef.current!.emit(Events.SUB, { user, topic_ids });
+          socketRef.current!.emit(Events.SUB, { user: { ...user, org_id: org?.id }, topic_ids });
           resolve(socketRef.current!);
         });
 
@@ -48,9 +51,9 @@ export function useSocketService() {
     });
   };
   useEffect(() => {
-    if (user && isFetched && topic_ids.length > 0)
+    if (user && isFetched && org?.id)
       connect()
-  }, [user, isFetched, topic_ids.length])
+  }, [user, isFetched, topic_ids.length, org])
 
 
   const onListenerMessage = (cb: (data: any) => void) => {
@@ -58,10 +61,20 @@ export function useSocketService() {
     socketRef.current.on(Events.LISTENER_MSG, cb);
     return () => socketRef.current?.off(Events.LISTENER_MSG, cb);
   }
+  const onListenerMessageOrg = (cb: (data: any) => void) => {
+    if (!socketRef.current) return;
+    socketRef.current.on(Events.LISTENER_MSG_ORG, cb);
+    return () => socketRef.current?.off(Events.LISTENER_MSG_ORG, cb);
+  }
   const onListenerTyping = (cb: (data: TypingType) => void) => {
     if (!socketRef.current) return;
     socketRef.current.on(Events.TYPING, cb);
     return () => socketRef.current?.off(Events.TYPING, cb);
+  }
+  //
+  const doManualSubscribeTopic = (topic_id: string) => {
+    if (!socketRef.current) return;
+    socketRef.current.emit(Events.SUB_TOPIC, { user, topic_id })
   }
   const doMessage = (data: MessageBody) => {
     if (!socketRef.current) return;
@@ -82,6 +95,8 @@ export function useSocketService() {
     connect,
     doMessage,
     onListenerMessage,
+    onListenerMessageOrg,
+    doManualSubscribeTopic,
     doTyping,
     onListenerTyping
   }

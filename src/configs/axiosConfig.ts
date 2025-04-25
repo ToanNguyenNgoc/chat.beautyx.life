@@ -8,8 +8,8 @@ if (ENV_QR.token && ENV_QR.e && ENV_QR.subdomain) {
 }
 export const ENV = sessionStorage.getItem('ENV') || ENV_QR.e
 // export const baseURL = Number(ENV) === 1 ? process.env.REACT_APP_API : process.env.REACT_APP_API_DEV;
-// export const baseURL = process.env.REACT_APP_API
-export const baseURL = process.env.REACT_APP_API_DEV
+export const baseURL = process.env.REACT_APP_API
+// export const baseURL = process.env.REACT_APP_API_DEV
 export const axiosConfig = axios.create({
   baseURL: baseURL,
   headers: {
