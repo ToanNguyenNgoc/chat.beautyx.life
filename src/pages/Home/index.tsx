@@ -251,13 +251,16 @@ export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage 
 
 export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = ({ onListenerMsg }) => {
   const { user, org } = useContext(AppContext) as AppContextType
-  const { connect, onListenerMessageOrg } = useSocketService();
+  const { connect, onListenerMessageOrg, onListenerMessage } = useSocketService();
   useEffect(() => {
+    let unsubscribeMessageOrg: (() => void) | undefined;
     let unsubscribeMessage: (() => void) | undefined;
     const onListener = async () => {
       await connect();
-      unsubscribeMessage = onListenerMessageOrg((msg) => {
-        console.log(msg);
+      unsubscribeMessageOrg = onListenerMessageOrg((msg) => {
+        onListenerMsg?.(msg);
+      });
+      unsubscribeMessage = onListenerMessage((msg) => {
         onListenerMsg?.(msg);
       });
     };
@@ -265,6 +268,7 @@ export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = (
       onListener();
     }
     return () => {
+      unsubscribeMessageOrg?.();
       unsubscribeMessage?.();
     };
   }, [user, org?.id]);
