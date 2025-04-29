@@ -139,7 +139,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       </div>
       <MessageInput
         input_media_id="media_topic"
-        doMessage={doMessage}
+        doMessage={data => doMessage(data, curTopic?.topic_user.map(i => i.user_id))}
         doTyping={doTyping}
         topic_id={topic_id ?? ''}
         onScrollBottom={onScrollBottom}

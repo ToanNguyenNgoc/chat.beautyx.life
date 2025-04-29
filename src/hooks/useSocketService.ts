@@ -4,6 +4,7 @@ import { AppContext, AppContextType } from "src/context/AppProvider"
 import { io, Socket } from "socket.io-client";
 import { useGetAllTopic } from "./useGetAllTopic";
 import { MessageBody } from "src/interfaces";
+import { uniqueArray } from "src/utils";
 
 const Events = {
   SUB: 'SUB',
@@ -76,11 +77,12 @@ export function useSocketService() {
     if (!socketRef.current) return;
     socketRef.current.emit(Events.SUB_TOPIC, { user, topic_id })
   }
-  const doMessage = (data: MessageBody) => {
+  const doMessage = (data: MessageBody, topic_users?: number[]) => {
     if (!socketRef.current) return;
     socketRef.current.emit(Events.SEND_MSG, {
       user,
-      message: { msg: data.msg, topic_id: data.topic_id, media_ids: data.media_ids, media_urls: data.media_urls }
+      message: { msg: data.msg, topic_id: data.topic_id, media_ids: data.media_ids, media_urls: data.media_urls },
+      user_ids: uniqueArray(topic_users?.filter(i => i !== user?.id)).filter(Boolean) || []
     });
   };
   const doTyping = (data: DoTypingType) => {
