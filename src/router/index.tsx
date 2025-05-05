@@ -16,7 +16,7 @@ const RouterConfig = () => {
       ]
     },
     {
-      path: "/dev2021/ManageMessage",
+      path: "/dev/ManageMessage",
       element: <ProtectedRoute><Main /></ProtectedRoute>,
       children: [
         {
@@ -30,7 +30,7 @@ const RouterConfig = () => {
       element:<ProtectedRoute><ManageComment/></ProtectedRoute>
     },
     {
-      path:'/dev2021/ManageComment',
+      path:'/dev/ManageComment',
       element:<ProtectedRoute><ManageComment/></ProtectedRoute>
     },
     {
