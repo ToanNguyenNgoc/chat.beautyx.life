@@ -27,7 +27,7 @@ export function useSocketService() {
     return new Promise<Socket>((resolve, reject) => {
       try {
         socketRef.current = io(String(process.env.REACT_APP_SOCKET_URL), {
-        // socketRef.current = io('http://localhost:3004', {
+          // socketRef.current = io('http://localhost:3004', {
           extraHeaders: {
             Authorization: `Bearer`,
           },
