@@ -73,7 +73,7 @@ const ProfileShortcut: FC = () => {
   const mb = useMediaQuery('(max-width:767px)')
   const profileRef = useRef<HTMLDivElement>(null)
   window.addEventListener('click', () => profileRef.current?.classList.remove('profile-act'))
-  const { user, org } = useContext(AppContext) as AppContextType
+  const { user, org, logout } = useContext(AppContext) as AppContextType
   const [openSend, setOpenSend] = useState(false)
   return (
     <div className="shortcut-profile-cnt">
@@ -109,22 +109,19 @@ const ProfileShortcut: FC = () => {
           </div>
         </div>
         <ul className="profile-bottom">
-          <li onClick={() => setOpenSend(true)} className="profile-bottom_btn">
+          {/* <li onClick={() => setOpenSend(true)} className="profile-bottom_btn">
             <div className="profile-bottom_btn-icon">
               <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
             </div>
             <span className="profile-bottom_btn-txt">Gửi tin nhắn cho nhiều người</span>
-          </li>
+          </li> */}
           <SendManyMessage open={openSend} onClose={() => setOpenSend(false)} />
-          {/* {
-            !mb &&
-            <li onClick={logout} className="profile-bottom_btn">
-              <div className="profile-bottom_btn-icon">
-                <i className="fa fa-sign-out" aria-hidden="true"></i>
-              </div>
-              <span className="profile-bottom_btn-txt">Đăng xuất</span>
-            </li>
-          } */}
+          <li className="profile-bottom_btn" onClick={logout}>
+            <div className="profile-bottom_btn-icon">
+              <i className="fa fa-sign-out" aria-hidden="true"></i>
+            </div>
+            <span className="profile-bottom_btn-txt">Đăng xuất</span>
+          </li>
         </ul>
       </div>
       <div onClick={(e) => {
@@ -217,7 +214,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
                     <div className="topic-info">
                       <span className="topic-info_name">{onRenderTopicName(item).name}</span>
                       <div className="topic-info_date">
-                        <span className="topic-info_date-mes">{item.messages[0]?.msg}</span>
+                        <span className="topic-info_date-mes">{item.messages[0]?.msg || 'Đã gửi hình ảnh'}</span>
                         <span className="topic-info_date-time">{dateFromNow(item.updated_at)}</span>
                       </div>
                     </div>
@@ -226,7 +223,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
               ))
             }
           </ul>
-          {(topics.length < total || isLoading) && <BottomTopic fetchNextPage={fetchNextPage} />}
+          {isLoading && <BottomTopic fetchNextPage={fetchNextPage} />}
         </div>
       </div>
     </Fragment>
