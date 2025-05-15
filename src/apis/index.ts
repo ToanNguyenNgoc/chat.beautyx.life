@@ -4,6 +4,7 @@ import {
   ContextData,
   IComment,
   IMessage,
+  ISocketConfig,
   ITopic,
   IUser,
   LoginBody,
@@ -32,6 +33,7 @@ const apis = {
   getOrganization: (subdomain: string) => {
     return axiosConfig.get(`/organizations/${subdomain}`).then<Response<Organization>>(res => res.data)
   },
+  getSocketConfig:()=> axiosConfig.get('/socket_configs_client').then<Response<ISocketConfig>>(res => res.data),
   getTopics: (params?: QueryTopic) => {
     return axiosConfig
       .get('/topics', { params })

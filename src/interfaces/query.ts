@@ -5,7 +5,8 @@ interface Query {
 export interface QueryTopic extends Query {
   s?: string;
   sort?: 'updated_at' | '-updated_at',
-  org?:string
+  org?:string,
+  is_only_id?:boolean
 }
 export interface QueryMessage extends Query {
   topic_id: string;

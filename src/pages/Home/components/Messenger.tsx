@@ -5,8 +5,8 @@ import { useLocation, useParams } from "react-router-dom";
 import { AvatarTopic, MessageInput, Typing, XCircularProgress } from "src/components";
 import { AppContext, AppContextType } from "src/context/AppProvider";
 import { IMessage, ITopic } from "src/interfaces";
-import { dateFromNow, fileType, linkify, unique } from "src/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { CONST, dateFromNow, fileType, linkify, unique } from "src/utils";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import apis from "src/apis";
 import InfiniteScroll from "react-infinite-scroll-component";
 import "src/assets/message.css"
@@ -18,6 +18,7 @@ interface MessengerProp {
 }
 
 export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) => {
+  const client = useQueryClient();
   const params = useParams()
   const topic_id = params.id || topicItem?._id
   const location = useLocation()
@@ -31,7 +32,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
     name = unique(curTopic?.topic_user?.map(i => i.user?.fullname).filter(Boolean)).join(',')
   }
 
-  const { topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping, doManualSubscribeTopic } = useSocketService();
+  const { config, topic_ids, connect, doMessage, onListenerMessage, doTyping, onListenerTyping, doManualSubscribeTopic } = useSocketService();
 
   useEffect(() => {
     let unsubscribeMessage: (() => void) | undefined;
@@ -41,6 +42,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       await connect();
       doManualSubscribeTopic(String(topic_id));
       unsubscribeMessage = onListenerMessage((msg: IMessage) => {
+        client.refetchQueries([CONST.query_key.topics])
         if (msg.topic_id === topic_id) {
           setMessages(prev => [msg, ...prev]);
         }
@@ -53,7 +55,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       });
     };
 
-    if (user?.id && topic_id) {
+    if (config?.ws_host && user?.id && topic_id) {
       onListener();
     }
 
@@ -62,7 +64,7 @@ export const Messenger: FC<MessengerProp> = ({ topicItem, goBack = () => { } }) 
       unsubscribeMessage?.();
       unsubscribeTyping?.();
     };
-  }, [user?.id, topic_ids.length, topic_id]);
+  }, [config?.ws_host, user?.id, topic_ids.length, topic_id]);
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['CHAT', topic_id],

@@ -53,6 +53,7 @@ export interface Organization {
   }
 }
 export interface ITopic {
+  id: string,
   _id: string,
   type: string,
   organization_id: number,
@@ -85,7 +86,7 @@ export interface TopicUser {
 export interface IMessage {
   _id: string,
   msg: string,
-  media_urls:string[],
+  media_urls: string[],
   user_id: number,
   topic_id: string,
   reply_id: null | string,
@@ -172,4 +173,16 @@ export interface BodyComment {
   media_ids?: string[] | number[];
   rate?: number;
   body?: string;
+}
+export interface ISocketConfig {
+  id: number,
+  ws_host: string,
+  ws_port: number,
+  cluster: string,
+  enable_stats: boolean,
+  force_tls: boolean,
+  status: boolean,
+  deleted_at: null|string,
+  created_at: string,
+  updated_at: string
 }

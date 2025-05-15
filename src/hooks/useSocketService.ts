@@ -2,9 +2,10 @@
 import { useContext, useEffect, useRef } from "react"
 import { AppContext, AppContextType } from "src/context/AppProvider"
 import { io, Socket } from "socket.io-client";
-import { useGetAllTopic } from "./useGetAllTopic";
 import { MessageBody } from "src/interfaces";
 import { uniqueArray } from "src/utils";
+import { useGetTopicIds } from "./useGetTopicIds";
+import { useGetSocketConfig } from "./useGetSocketConfig";
 
 const Events = {
   SUB: 'SUB',
@@ -18,15 +19,18 @@ const Events = {
 export type DoTypingType = { typing: boolean, topic_id: string }
 export type TypingType = { topic_id: string, typing: boolean, user: any }
 
+
 export function useSocketService() {
   const { user, org } = useContext(AppContext) as AppContextType;
-  const { topic_ids, isFetched } = useGetAllTopic();
+  const {config} = useGetSocketConfig();
+  const { topic_ids, isFetched } = useGetTopicIds();
   const socketRef = useRef<Socket | null>(null);
   const connect = async () => {
+    if(!config?.ws_host) return;
     if (socketRef.current) return socketRef.current;
     return new Promise<Socket>((resolve, reject) => {
       try {
-        socketRef.current = io(String(process.env.REACT_APP_SOCKET_URL), {
+        socketRef.current = io(String(config.ws_host), {
           // socketRef.current = io('http://localhost:3004', {
           extraHeaders: {
             Authorization: `Bearer`,
@@ -52,9 +56,9 @@ export function useSocketService() {
     });
   };
   useEffect(() => {
-    if (user?.id && isFetched && org?.id)
+    if (config?.ws_host && user?.id && isFetched && org?.id)
       connect()
-  }, [user?.id, isFetched, topic_ids.length, org])
+  }, [config?.ws_host, user?.id, isFetched, topic_ids.length, org])
 
 
   const onListenerMessage = (cb: (data: any) => void) => {
@@ -93,6 +97,7 @@ export function useSocketService() {
     })
   }
   return {
+    config,
     user, topic_ids,
     connect,
     doMessage,

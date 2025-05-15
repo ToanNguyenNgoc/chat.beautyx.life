@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Button, TextField, Tooltip, useMediaQuery } from '@mui/material'
+import { Avatar, Button, Tooltip, useMediaQuery } from '@mui/material'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { ChangeEvent, FC, Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -146,7 +146,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
     setTimeout(() => setSearch(e.target.value), 800)
   }, [search])
   const { data, fetchNextPage, isLoading, refetch: refetchTopics } = useInfiniteQuery({
-    queryKey: [CONST.query_key.topics, search],
+    queryKey: [CONST.query_key.topics],
     queryFn: ({ pageParam = 1 }) => apis.getTopics({
       p: pageParam,
       l: 15,
@@ -167,6 +167,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
     <Fragment>
       <InstanceSocket
         onListenerMsg={() => {
+          console.log("Run refresh")
           setSkipSetOpenTopic(true);
           refetchTopics();
         }}
@@ -187,7 +188,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
             </Button> */}
             </div>
           </div>
-          <div className="chat-topic_head-ip">
+          {/* <div className="chat-topic_head-ip">
             <TextField
               color='success'
               hiddenLabel fullWidth
@@ -197,7 +198,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
               size="small"
               onChange={onChangeSearch}
             />
-          </div>
+          </div> */}
         </div>
         <div className="chat-topic_list">
           <ul className="topic-list">
@@ -205,9 +206,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
               topics.map(item => (
                 <li key={item._id} className='topic-item'>
                   <div
-                    // onClick={() => navigate(`/chats/${item._id}`, { state: item })}
                     onClick={() => setOpenTopic(item)}
-                    // className={params.id === item._id ? 'topic-link topic-act' : 'topic-link'}
                     className={openTopic?._id === item._id ? 'topic-link topic-act' : 'topic-link'}
                   >
                     <AvatarTopic topic={item} />
@@ -223,7 +222,7 @@ const TopicList: FC<{ openTopic?: ITopic, setOpenTopic: React.Dispatch<React.Set
               ))
             }
           </ul>
-          {isLoading && <BottomTopic fetchNextPage={fetchNextPage} />}
+          {(isLoading || topics.length < total) && <BottomTopic fetchNextPage={fetchNextPage} />}
         </div>
       </div>
     </Fragment>
@@ -237,7 +236,10 @@ export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage 
     threshold: 0.3,
   }, refBottom)
   useEffect(() => {
-    if (isVisible && fetchNextPage) fetchNextPage()
+    if (isVisible && fetchNextPage) {
+      fetchNextPage();
+      console.log("Run...")
+    }
   }, [isVisible])
   return (
     <div ref={refBottom}>
@@ -248,7 +250,7 @@ export const BottomTopic: FC<{ fetchNextPage?: () => void }> = ({ fetchNextPage 
 
 export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = ({ onListenerMsg }) => {
   const { user, org } = useContext(AppContext) as AppContextType
-  const { connect, onListenerMessageOrg, onListenerMessage } = useSocketService();
+  const { config, connect, onListenerMessageOrg, onListenerMessage } = useSocketService();
   useEffect(() => {
     let unsubscribeMessageOrg: (() => void) | undefined;
     let unsubscribeMessage: (() => void) | undefined;
@@ -261,13 +263,13 @@ export const InstanceSocket: FC<{ onListenerMsg?: (msg: IMessage) => void }> = (
         onListenerMsg?.(msg);
       });
     };
-    if (user?.id && org?.id) {
+    if (config?.ws_host && user?.id && org?.id) {
       onListener();
     }
     return () => {
       unsubscribeMessageOrg?.();
       unsubscribeMessage?.();
     };
-  }, [user?.id, org?.id]);
+  }, [config?.ws_host, user?.id, org?.id]);
   return null;
 }
